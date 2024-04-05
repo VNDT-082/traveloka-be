@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Services;
 
-interface IBaseRepository
+interface IBaseService
 {
     public function all();
 
@@ -35,7 +35,6 @@ interface IBaseRepository
     public function whereIn($column, $value);
 
     public function with($relations);
-
     //write after
     public function paginate($page);
 }

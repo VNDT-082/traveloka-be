@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Repositories;
+
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
@@ -86,6 +88,22 @@ abstract class BaseRepository implements IBaseRepository
         $this->newQuery()->eagerLoad();
 
         $models = $this->query->get();
+
+        $this->unsetClauses();
+
+        return $models;
+    }
+
+    /**
+     * Get top n records in the database by page
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function paginate($page)
+    {
+        $this->newQuery()->eagerLoad();
+
+        $models = $this->query->simplePaginate(10, ['*'], 'page', $page);
 
         $this->unsetClauses();
 
