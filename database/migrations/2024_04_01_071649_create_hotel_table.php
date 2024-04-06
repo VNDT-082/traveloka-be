@@ -20,8 +20,8 @@ return new class extends Migration
             $table->text('Description')->nullable();
             $table->text('LocationDetail')->nullable();
             $table->boolean('IsActive')->default(false);
-            $table->dateTime('TimeCheckIn')->nullable();
-            $table->dateTime('TimeCheckOut')->nullable();
+            $table->string('TimeCheckIn', 20)->nullable();
+            $table->string('TimeCheckOut', 20)->nullable();
 
             $table->timestamps();
         });

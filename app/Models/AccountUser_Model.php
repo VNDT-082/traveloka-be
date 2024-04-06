@@ -10,6 +10,7 @@ class AccountUser_Model extends Model
     use HasFactory;
     protected $table = 'accountuser';
     protected $primary = 'id';
+    public $incrementing = false;
     protected $fillable = [
         'id',
         'created_at',

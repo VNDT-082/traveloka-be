@@ -10,4 +10,5 @@ class Guest_Model extends Model
     use HasFactory;
     protected $table = 'guest';
     protected $primary = 'id';
+    public $incrementing = false;
 }

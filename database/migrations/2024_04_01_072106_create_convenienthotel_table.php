@@ -19,8 +19,8 @@ return new class extends Migration
 
             $table->string('Title')->nullable(false);
             $table->string('ImageIcon')->default('ImageIconDefault.jpg');
-            $table->text('Description')->nullable(false);
-
+            $table->string('Description')->nullable(false);
+            //$table->json('Description')->nullable(false);
             $table->timestamps();
             $table->foreign('HotelId')->references('id')->on('hotel');
         });

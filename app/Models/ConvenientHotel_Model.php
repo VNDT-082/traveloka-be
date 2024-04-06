@@ -10,4 +10,8 @@ class ConvenientHotel_Model extends Model
     use HasFactory;
     protected $table = 'convenienthotel';
     protected $primary = 'id';
+    public $incrementing = false;
+    protected $casts = [
+        'Description' => 'array',
+    ];
 }

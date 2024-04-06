@@ -10,4 +10,5 @@ class Staff_Model extends Model
     use HasFactory;
     protected $table = 'staff';
     protected $primary = 'id';
+    public $incrementing = false;
 }

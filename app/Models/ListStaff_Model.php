@@ -10,4 +10,5 @@ class ListStaff_Model extends Model
     use HasFactory;
     protected $table = 'liststaff';
     protected $primary = 'id';
+    public $incrementing = false;
 }

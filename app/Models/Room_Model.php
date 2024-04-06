@@ -10,4 +10,5 @@ class Room_Model extends Model
     use HasFactory;
     protected $table = 'room';
     protected $primary = 'id';
+    public $incrementing = false;
 }

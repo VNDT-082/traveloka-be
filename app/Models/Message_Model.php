@@ -10,4 +10,5 @@ class Message_Model extends Model
     use HasFactory;
     protected $table = 'message';
     protected $primary = 'id';
+    public $incrementing = false;
 }

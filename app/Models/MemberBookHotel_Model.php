@@ -10,4 +10,5 @@ class MemberBookHotel_Model extends Model
     use HasFactory;
     protected $table = 'memberbookhotel';
     protected $primary = 'id';
+    public $incrementing = false;
 }

@@ -10,4 +10,5 @@ class PolicyHotel_Model extends Model
     use HasFactory;
     protected $table = 'policyhotel';
     protected $primary = 'id';
+    public $incrementing = false;
 }

@@ -10,4 +10,5 @@ class TypeRoom_Model extends Model
     use HasFactory;
     protected $table = 'typeroom';
     protected $primary = 'id';
+    public $incrementing = false;
 }

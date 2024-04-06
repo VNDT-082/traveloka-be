@@ -10,4 +10,5 @@ class ImagesHotel_Model extends Model
     use HasFactory;
     protected $table = 'imageshotel';
     protected $primary = 'id';
+    public $incrementing = false;
 }
