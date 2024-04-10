@@ -4,6 +4,7 @@ use App\Http\Controllers\API\Guest_Controller;
 use App\Http\Controllers\API\Hotel_Controller;
 use App\Http\Controllers\API\ImagesHotel_Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
@@ -17,9 +18,11 @@ Route::prefix('hotel')->group(function () {
     //param: page
     Route::get('get-page', [Hotel_Controller::class, 'paginate'])->name('hotel.getPage');
 
-
     //param: id
     Route::get('get-one-by-id', [Hotel_Controller::class, 'show'])->name('hotel.getOneById');
+
+    //param: $Location, $TimeCheckIn, $QuantityMember, $MaxRoomCount, $QuantityDay allow null
+    Route::get('search', [Hotel_Controller::class, 'search'])->name('hotel.search');
 });
 
 // dang ky route ImagesHotel

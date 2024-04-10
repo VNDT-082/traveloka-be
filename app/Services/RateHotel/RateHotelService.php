@@ -3,12 +3,14 @@
 namespace App\Services\RateHotel;
 
 use App\Models\RateHotel_Model;
+use App\Repositories\RateHotel\IRateHotelRepository;
 use App\Services\BaseService;
 
 class RateHotelService extends BaseService implements IRateHotelService
 {
-    public function __construct(RateHotel_Model $model)
+    protected $repository;
+    public function __construct(IRateHotelRepository $repository)
     {
-        parent::__construct($model);
+        parent::__construct($repository);
     }
 }
