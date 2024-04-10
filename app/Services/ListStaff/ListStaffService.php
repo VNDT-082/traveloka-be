@@ -3,12 +3,14 @@
 namespace App\Services\ListStaff;
 
 use App\Models\ListStaff_Model;
+use App\Repositories\ListStaff\IListStaffRepository;
 use App\Services\BaseService;
 
 class ListStaffService extends BaseService implements IListStaffService
 {
-    public function __construct(ListStaff_Model $model)
+    protected $repository;
+    public function __construct(IListStaffRepository $repository)
     {
-        parent::__construct($model);
+        parent::__construct($repository);
     }
 }

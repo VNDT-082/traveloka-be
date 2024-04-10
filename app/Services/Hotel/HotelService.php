@@ -12,4 +12,8 @@ class HotelService extends BaseService implements IHotelService
     {
         parent::__construct($repository);
     }
+    function search($Location, $TimeCheckIn, $QuantityMember, $MaxRoomCount, $QuantityDay)
+    {
+        return $this->repository->search($Location, $TimeCheckIn, $QuantityMember, $MaxRoomCount, $QuantityDay);
+    }
 }

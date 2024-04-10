@@ -76,4 +76,20 @@ class Hotel_Controller extends Controller
     {
         //
     }
+
+    public function search(Request $request)
+    {
+        if ($request->query('Location')) {
+            $Location = $request->query('Location');
+            $TimeCheckIn = $request->query('TimeCheckIn') ? $request->query('TimeCheckIn') : null;
+            $QuantityMember = $request->query('QuantityMember') ? $request->query('QuantityMember') : null;
+            $MaxRoomCount = $request->query('MaxRoomCount') ? $request->query('MaxRoomCount') : null;
+            $QuantityDay = $request->query('QuantityDay') ? $request->query('QuantityDay') : null;
+            $response = $this->IHotelService->search($Location, $TimeCheckIn, $QuantityMember, $MaxRoomCount, $QuantityDay);
+
+            return $response ? ['status' => 200, 'result' => $response]
+                : ['status' => 200, 'result' => 'NOT_FOUND'];
+        }
+        return ['status' => 404, 'result' => 'NOT_FOUND'];
+    }
 }

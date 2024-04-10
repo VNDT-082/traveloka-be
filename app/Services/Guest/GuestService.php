@@ -3,12 +3,14 @@
 namespace App\Services\Guest;
 
 use App\Models\Guest_Model;
+use App\Repositories\Guest\IGuestRepository;
 use App\Services\BaseService;
 
 class GuestService extends BaseService implements IGuestService
 {
-    public function __construct(Guest_Model $model)
+    protected $repository;
+    public function __construct(IGuestRepository $repository)
     {
-        parent::__construct($model);
+        parent::__construct($repository);
     }
 }

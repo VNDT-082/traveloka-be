@@ -10,6 +10,7 @@ use App\Repositories\ImagesHotel\IImagesHotelRepository;
 use App\Repositories\PolicyHotel\IPolicyHotelRepository;
 use App\Repositories\RateHotel\IRateHotelRepository;
 use App\Repositories\TypeRoom\ITypeRoomRepository;
+use Illuminate\Support\Facades\DB;
 
 class HotelRepository extends BaseRepository implements IHotelRepository
 {
@@ -64,15 +65,73 @@ class HotelRepository extends BaseRepository implements IHotelRepository
         return null;
     }
 
-    public function search($Location, $TimeCheckIn, $TimeCheckOut, $QuantityMember, $MaxRoomCount)
-    {
-        //Viet query 
-        // SELECT *FROM `hotel` ht
-        // LEFT JOIN `typeroom` tr ON ht.id=tr.HotelId 
-        // WHERE 1
-        // AND `Address` LIKE N'%Đà Nẵng%'
-        // AND tr.MaxQuantityMember=5
-        // GROUP BY ht.id
-        // LIMIT 10 
+    public function search(
+        $Location,
+        $TimeCheckIn = null,
+        $QuantityMember = null,
+        $MaxRoomCount = null,
+        $QuantityDay = null
+    ) {
+        $query = "";
+        $hotels = null;
+        if ($Location != null) {
+
+            $hotels = $this->model::where('Address', 'like', "%" . $Location . "%")->get();
+        } else if ($Location != null && $TimeCheckIn != null) {
+            $query = "SELECT  ht.*
+            FROM   `room` r, `typeroom` tr
+            LEFT JOIN `hotel` ht ON tr.HotelId =ht.id
+            WHERE 1 = 1 
+            AND ht.Address LIKE N'%" . $Location . "%'
+            AND YEAR(r.TimeRecive) = YEAR('" . $TimeCheckIn . "')
+            AND MONTH(r.TimeRecive)=MONTH('" . $TimeCheckIn . "')
+            AND DAY(r.TimeRecive)=DAY('" . $TimeCheckIn . "')
+            LIMIT 10 ";
+            $hotels = DB::select($query);
+        } else if ($Location != null && $TimeCheckIn != null && $QuantityMember != null) {
+            $query = "SELECT  ht.*
+            FROM   `room` r, `typeroom` tr
+            LEFT JOIN `hotel` ht ON tr.HotelId =ht.id
+            WHERE 1 = 1 
+            AND ht.Address LIKE N'%" . $Location . "%'
+            AND tr.MaxQuantityMember=" . $QuantityMember . "
+            AND YEAR(r.TimeRecive) = YEAR('" . $TimeCheckIn . "')
+            AND MONTH(r.TimeRecive)=MONTH('" . $TimeCheckIn . "')
+            AND DAY(r.TimeRecive)=DAY('" . $TimeCheckIn . "')
+            LIMIT 10 ";
+            $hotels = DB::select($query);
+        } else if ($Location != null && $TimeCheckIn != null && $QuantityDay != null) {
+            $query = "SELECT  ht.*
+            FROM   `room` r, `typeroom` tr
+            LEFT JOIN `hotel` ht ON tr.HotelId =ht.id
+            WHERE 1 = 1 
+            AND ht.Address LIKE N'%" . $Location . "%'
+            AND YEAR(r.TimeRecive) = YEAR('" . $TimeCheckIn . "')
+            AND MONTH(r.TimeRecive)=MONTH('" . $TimeCheckIn . "')
+            AND DAY(r.TimeRecive)=DAY('" . $TimeCheckIn . "')
+            AND DATEDIFF( R.TimeLeave,R.TimeRecive)=" . $QuantityDay . "
+            LIMIT 10 ";
+            $hotels = DB::select($query);
+        } else if ($Location != null && $TimeCheckIn != null && $QuantityMember != null && $MaxRoomCount != null) {
+            $query = "SELECT  ht.*
+            FROM   `room` r, `typeroom` tr
+            LEFT JOIN `hotel` ht ON tr.HotelId =ht.id
+            WHERE 1 = 1 
+            AND ht.Address LIKE N'%" . $Location . "%'
+            AND tr.MaxQuantityMember=" . $QuantityMember . "
+            AND YEAR(r.TimeRecive) = YEAR('" . $TimeCheckIn . "')
+            AND MONTH(r.TimeRecive)=MONTH('" . $TimeCheckIn . "')
+            AND DAY(r.TimeRecive)=DAY('" . $TimeCheckIn . "')
+            AND DATEDIFF( R.TimeLeave,R.TimeRecive)=" . $QuantityDay . "
+            LIMIT 10 ";
+            $hotels = DB::select($query);
+        }
+
+        if ($hotels != null) {
+            foreach ($hotels as $hotel) {
+                $hotel->images[] = $this->IImagesHotelRepository->where('HotelId', $hotel->id, '=');
+            }
+        }
+        return $hotels;
     }
 }
