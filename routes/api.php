@@ -2,11 +2,12 @@
 
 use App\Http\Controllers\API\Guest_Controller;
 use App\Http\Controllers\API\Hotel_Controller;
+use App\Http\Controllers\API\HotelController;
 use App\Http\Controllers\API\ImagesHotel_Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\API\AuthController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -23,7 +24,20 @@ Route::prefix('hotel')->group(function () {
 
     //param: $Location, $TimeCheckIn, $QuantityMember, $MaxRoomCount, $QuantityDay allow null
     Route::get('search', [Hotel_Controller::class, 'search'])->name('hotel.search');
+
+
+
+
+    ### Vinh
+    Route::get('/hotels-by-province', [HotelController::class, 'getHotelsByProvince']);
+
+    Route::get('/hotels', [HotelController::class, 'getAllHotels']);
 });
+
+
+Route::get('/check-email-exists', [AuthController::class, 'checkEmailExists']);
+Route::post('/register', [AuthController::class, 'register']);
+
 
 // dang ky route ImagesHotel
 Route::prefix('image-hotel')->group(function () {
