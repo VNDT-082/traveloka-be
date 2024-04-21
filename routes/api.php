@@ -36,9 +36,10 @@ Route::prefix('hotel')->group(function () {
 
 
 Route::get('/check-email-exists', [AuthController::class, 'checkEmailExists']);
+Route::get('/check-phone-exists', [AuthController::class, 'checkPhoneExists']);
 Route::post('/register', [AuthController::class, 'register']);
-
-
+Route::post('/login-email', [AuthController::class, 'loginWithEmail']);
+Route::post('/login-phone', [AuthController::class, 'loginWithPhone']);
 // dang ky route ImagesHotel
 Route::prefix('image-hotel')->group(function () {
     Route::get('get-all', [ImagesHotel_Controller::class, 'index'])->name('imagesHotel');
