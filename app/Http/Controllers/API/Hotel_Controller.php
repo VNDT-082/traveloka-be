@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Services\Hotel\IHotelService;
+use App\Services\Hotel\HotelService;
 use Illuminate\Http\Request;
 
 class Hotel_Controller extends Controller
@@ -92,4 +93,11 @@ class Hotel_Controller extends Controller
         }
         return ['status' => 404, 'result' => 'NOT_FOUND'];
     }
+
+
+
+    
+
+
+     
 }

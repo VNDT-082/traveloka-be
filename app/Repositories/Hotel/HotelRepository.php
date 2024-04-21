@@ -10,6 +10,7 @@ use App\Repositories\ImagesHotel\IImagesHotelRepository;
 use App\Repositories\PolicyHotel\IPolicyHotelRepository;
 use App\Repositories\RateHotel\IRateHotelRepository;
 use App\Repositories\TypeRoom\ITypeRoomRepository;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 
 class HotelRepository extends BaseRepository implements IHotelRepository
@@ -134,4 +135,11 @@ class HotelRepository extends BaseRepository implements IHotelRepository
         }
         return $hotels;
     }
+
+
+  
+
+
+
+   
 }
