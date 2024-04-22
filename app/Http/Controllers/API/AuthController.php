@@ -151,9 +151,12 @@ class AuthController extends Controller
         $user = DB::table('users')->where('id', $id)->first();        
         // Kiểm tra xem người dùng có tồn tại không
         if ($user) {
-            return response()->json([
-                $user
-            ],200);
+             return response()->json([
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'Telephone' => $user->Telephone,
+            ], 200);
         } else {
             return response()->json([
                 'message' => 'User not found.',
