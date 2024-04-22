@@ -109,6 +109,7 @@ class AuthController extends Controller
             }
 
             return response()->json([
+                'id' => $user->id,
                 'email' => $user->email,
                 'name' => $user->name,
                 'Telephone' => $user->Telephone,
@@ -131,7 +132,8 @@ class AuthController extends Controller
                 return response()->json(['errors' => 'Invalid credentials'], 401);
             }
 
-            return response()->json([
+           return response()->json([
+                'id' => $user->id,
                 'email' => $user->email,
                 'name' => $user->name,
                 'Telephone' => $user->Telephone,
@@ -142,5 +144,23 @@ class AuthController extends Controller
         }
     }
 
-    
+    public function getMe(Request $request) {
+        
+        // Tìm kiếm thông tin người dùng dựa trên ID
+         $id = $request->input('id');
+        $user = DB::table('users')->where('id', $id)->first();        
+        // Kiểm tra xem người dùng có tồn tại không
+        if ($user) {
+             return response()->json([
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'Telephone' => $user->Telephone,
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'User not found.',
+            ], 404);
+        }
+    } 
 }

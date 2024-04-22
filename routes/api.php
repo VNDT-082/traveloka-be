@@ -40,6 +40,7 @@ Route::get('/check-phone-exists', [AuthController::class, 'checkPhoneExists']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login-email', [AuthController::class, 'loginWithEmail']);
 Route::post('/login-phone', [AuthController::class, 'loginWithPhone']);
+Route::get('/me', [AuthController::class, 'getMe']);
 // dang ky route ImagesHotel
 Route::prefix('image-hotel')->group(function () {
     Route::get('get-all', [ImagesHotel_Controller::class, 'index'])->name('imagesHotel');
