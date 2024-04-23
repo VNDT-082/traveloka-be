@@ -22,8 +22,12 @@ use App\Repositories\Message\IMessageRepository;
 use App\Repositories\Message\MessageRepository;
 use App\Repositories\PolicyHotel\IPolicyHotelRepository;
 use App\Repositories\PolicyHotel\PolicyHotelRepository;
+use App\Repositories\Province\IProvinceRepository;
+use App\Repositories\Province\ProvinceRepository;
 use App\Repositories\RateHotel\IRateHotelRepository;
 use App\Repositories\RateHotel\RateHotelRepository;
+use App\Repositories\Room\IRoomRepository;
+use App\Repositories\Room\RoomRepository;
 use App\Repositories\Staff\IStaffRepository;
 use App\Repositories\Staff\StaffRepository;
 use App\Repositories\TypeRoom\ITypeRoomRepository;
@@ -58,7 +62,11 @@ class RepositoryServiceProvider extends ServiceProvider
 
         $this->app->bind(IPolicyHotelRepository::class, PolicyHotelRepository::class);
 
+        $this->app->bind(IProvinceRepository::class, ProvinceRepository::class);
+
         $this->app->bind(IRateHotelRepository::class, RateHotelRepository::class);
+
+        $this->app->bind(IRoomRepository::class, RoomRepository::class);
 
         $this->app->bind(IStaffRepository::class, StaffRepository::class);
 
