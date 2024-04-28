@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('DisplayName')->nullable(false);
             $table->string('Address', 512)->nullable(false);
             $table->string('Image')->default('default.jpg');
+            $table->json('ProvinceNear')->nullable();
+            $table->smallInteger('PopularRate')->default(0);
             $table->timestamps();
         });
 

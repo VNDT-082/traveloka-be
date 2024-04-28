@@ -25,11 +25,13 @@ class Hotel_Controller extends Controller
     {
         if ($request->query('page')) {
             $page = $request->query('page');
+            //dd($this->IHotelService->paginate($page));
             return [
                 'result' => $this->IHotelService->paginate($page),
                 'total' => $this->IHotelService->count()
             ];
         }
+
         return [
             'result' => $this->IHotelService->paginate(1),
             'total' => $this->IHotelService->count()
@@ -86,7 +88,7 @@ class Hotel_Controller extends Controller
             $MaxRoomCount = $request->query('MaxRoomCount') ? $request->query('MaxRoomCount') : null;
             $QuantityDay = $request->query('QuantityDay') ? $request->query('QuantityDay') : null;
             $response = $this->IHotelService->search($Location, $TimeCheckIn, $QuantityMember, $MaxRoomCount, $QuantityDay);
-
+            dd($response);
             return $response ? ['status' => 200, 'result' => $response]
                 : ['status' => 200, 'result' => 'NOT_FOUND'];
         }

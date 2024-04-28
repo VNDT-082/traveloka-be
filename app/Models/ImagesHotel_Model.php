@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class ImagesHotel_Model extends Model
 {
     use HasFactory;
+    protected $connection = 'mysql';
     protected $table = 'imageshotel';
     protected $primary = 'id';
+
     public $incrementing = false;
 }
