@@ -10,6 +10,7 @@ class Hotel_Model extends Model
     use HasFactory;
     protected $table = 'hotel';
     protected $primary = 'id';
+    protected $connection = 'mysql';
     public $incrementing = false;
     public function images()
     {

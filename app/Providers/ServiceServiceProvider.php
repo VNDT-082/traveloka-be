@@ -22,8 +22,12 @@ use App\Services\Message\IMessageService;
 use App\Services\Message\MessageService;
 use App\Services\PolicyHotel\IPolicyHotelService;
 use App\Services\PolicyHotel\PolicyHotelService;
+use App\Services\Province\IProvinceService;
+use App\Services\Province\ProvinceService;
 use App\Services\RateHotel\IRateHotelService;
 use App\Services\RateHotel\RateHotelService;
+use App\Services\Room\IRoomService;
+use App\Services\Room\RoomService;
 use App\Services\Staff\IStaffService;
 use App\Services\Staff\StaffService;
 use App\Services\TypeRoom\ITypeRoomService;
@@ -57,7 +61,11 @@ class ServiceServiceProvider extends ServiceProvider
 
         $this->app->bind(IPolicyHotelService::class, PolicyHotelService::class);
 
+        $this->app->bind(IProvinceService::class, ProvinceService::class);
+
         $this->app->bind(IRateHotelService::class, RateHotelService::class);
+
+        $this->app->bind(IRoomService::class, RoomService::class);
 
         $this->app->bind(IStaffService::class, StaffService::class);
 

@@ -5,12 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ImagesHotel_Model extends Model
+class Province_Model extends Model
 {
     use HasFactory;
-    protected $connection = 'mysql';
-    protected $table = 'imageshotel';
+    protected $table = 'province';
     protected $primary = 'id';
-
     public $incrementing = false;
 }
