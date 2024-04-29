@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\AuthService\AuthService;
+use DateTime;
 use Exception;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
@@ -60,7 +61,7 @@ class AuthController extends Controller
 
         // Trả về phản hồi thành công nếu không có lỗi
         return response()->json(['message' => 'User registered successfully'], 200);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Xử lý ngoại lệ (ví dụ: ghi log)
             Log::error('Error while registering user: ' . $e->getMessage());
             // Trả về phản hồi lỗi nếu có lỗi xảy ra
@@ -163,4 +164,84 @@ class AuthController extends Controller
             ], 404);
         }
     } 
+
+    public function updateUserInfo(Request $request)
+    { $sql ="";
+        $method="";
+        try{
+
+            $currentDateTime = date("YmdHis");
+            $resultString = "GU". $currentDateTime;
+
+
+            $UserAccountId = $request->input('idAccount');
+            $id= $resultString;
+            $Name = $request->input('name');
+            $Email = $request->input('email');
+            $Telephone = $request->input('phone');
+            $Sex = $request->input('sex');
+            $CCCD = $request->input('cccd');
+            $DateOfBirth = $request->input('dob');
+
+            $dateTime = DateTime::createFromFormat('d/m/Y', $DateOfBirth);
+            $convertedDate = $dateTime->format('Y-m-d');
+
+
+            $guest = DB::table('guest')->where('UserAccountId', $UserAccountId)->first();
+
+
+        if ($guest) {
+            $method = "update";
+            // Tìm thấy idAccount, thực hiện cập nhật thông tin
+            $sql = "UPDATE guest SET Name = '{$Name}', Email = '{$Email}', Telephone = '{$Telephone}', Sex = '{$Sex}', DateOfBirth = '{$convertedDate}', CCCD = '{$CCCD}' WHERE UserAccountId = '{$UserAccountId}'";
+            DB::update($sql);
+            return response()->json(['message' => 'Thông tin người dùng đã được cập nhật'],200);
+        } else {
+           $method = "insert";
+            $sql = "INSERT INTO guest (id, UserAccountId, Name, Email, Telephone, Sex, DateOfBirth,CCCD)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+            DB::insert($sql, [
+                $id,
+                $UserAccountId ,
+                $Name,
+                $Email,
+                $Telephone,
+                $Sex,
+                $convertedDate,
+                $CCCD,
+            ]);
+
+            return response()->json(['message' => $method .' Người dùng mới đã được thêm' ],200);
+        }
+         }  
+         catch (Exception $e) {
+            return response()->json(['message' => $method . $sql .$e],500);
+         }
+    }
+
+    public function getUserInfo(Request $request)
+    {
+        $id = $request->input('id');
+        $guest = DB::table('guest')->where('UserAccountId', $id)->first();        
+        // Kiểm tra xem người dùng có tồn tại không
+        if ($guest) {
+             return response()->json([
+                'id' => $guest->id,
+                'email' => $guest->Email,
+                'name' => $guest->Name,
+                'Telephone' => $guest->Telephone,
+                'CCCD' => $guest->CCCD, 
+                'Sex' => $guest->Sex,
+                'Type' => $guest->Type,
+                 'Avarta' => $guest->Avarta,
+                 'DateOfBirth' => $guest->DateOfBirth,
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => '$guest not found.',
+            ], 404);
+        }
+    }
+
 }
