@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('id', 50)->change();
-            $table->string('Telephone')->unique()->change();
-            $table->string('Type')->change();
-            $table->boolean('IsActive')->default(true)->change();
+            $table->string('Telephone')->unique();
+            $table->string('Type');
+            $table->boolean('IsActive')->default(true);
         });
         Schema::table('staff', function (Blueprint $table) {
             $table->dropForeign(['UserAccountId']);

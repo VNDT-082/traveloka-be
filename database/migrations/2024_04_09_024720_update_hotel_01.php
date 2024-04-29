@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('hotel', function (Blueprint $table) {
-            $table->string('Type', 255)->default('Khác')->change();
-            $table->smallInteger('StarRate')->nullable()->change();
+            $table->string('Type', 255)->default('Khác');
+            $table->smallInteger('StarRate')->nullable();
         });
     }
 

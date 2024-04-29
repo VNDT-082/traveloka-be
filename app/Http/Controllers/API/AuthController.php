@@ -40,7 +40,10 @@ class AuthController extends Controller
 
         $currentDateTime = date("YmdHis");
 
-        $resultString = "AC". $currentDateTime;
+        $randomIdAccount = "AC". $currentDateTime;
+
+        $randomIdStaff = "SF". $currentDateTime;
+
         // Kiểm tra email đã tồn tại trong cơ sở dữ liệu chưa
         $existingUser = DB::table('users')->where('email', $request->email)->first();
         if ($existingUser) {
@@ -48,16 +51,32 @@ class AuthController extends Controller
             return response()->json(['errors' => 'Email already exists'], 422);
         }
 
-        // Thực hiện truy vấn SQL để thêm người dùng mới
         $sql = "INSERT INTO users (id , name, email, password, Telephone, Type) VALUES (?,?, ?, ?, ?, ?)";
         DB::insert($sql, [
-            $resultString,
+            $randomIdAccount,
             $request->name,
             $request->email,
             Hash::make($request->password),
             $request->Telephone,
             $request->Type,
         ]);
+
+        if($request->Type === 'Staff') {
+            $sql = "INSERT INTO Staff (id, UserAccountId, Email, Telephone, Name, CCCD, Sex, Type) VALUES (?,?, ?, ?, ?, ?,?,?)";
+            DB::insert($sql, [
+                $randomIdStaff,
+                $randomIdAccount,
+                $request->email,
+                $request->Telephone,
+                $request->name,
+                "00000000000",
+                "1",
+                $request->Type,
+            ]);
+        }
+
+        // Thực hiện truy vấn SQL để thêm người dùng mới
+        
 
         // Trả về phản hồi thành công nếu không có lỗi
         return response()->json(['message' => 'User registered successfully'], 200);
@@ -241,6 +260,31 @@ class AuthController extends Controller
             return response()->json([
                 'message' => '$guest not found.',
             ], 404);
+        }
+    }
+
+
+    public function loginAdminHotel(Request $request) {
+        try{
+            if (empty($request->email) || empty($request->password)) {
+                return response()->json(['errors' => 'Invalid input data'], 422);
+            }
+
+            $user = DB::table('users')->where('email', 'Type', $request->email, $request->Type)->first();
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json(['errors' => 'Invalid credentials'], 401);
+            }
+
+            
+
+            return response()->json([
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'Telephone' => $user->Telephone,
+            ], 200);
+        }catch (Exception $e){
+            return response()->json(['message' => $e],500);
         }
     }
 
