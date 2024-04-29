@@ -48,6 +48,11 @@ Route::post('/update-user-info', [AuthController::class, 'updateUserInfo']);
 Route::get('/get-user-info', [AuthController::class, 'getUserInfo']);
 
 
+// Administrator Hotel Login
+Route::post('/login-administrator', [AuthController::class, 'loginAdminHotel']);
+
+
+
 
 // dang ky route ImagesHotel
 Route::prefix('image-hotel')->group(function () {

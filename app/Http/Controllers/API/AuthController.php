@@ -270,19 +270,61 @@ class AuthController extends Controller
                 return response()->json(['errors' => 'Invalid input data'], 422);
             }
 
-            $user = DB::table('users')->where('email', 'Type', $request->email, $request->Type)->first();
+            $user = DB::table('users')->where('email', $request->email)->first();
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json(['errors' => 'Invalid credentials'], 401);
             }
 
+            $getStaff = DB::table('staff')->where('UserAccountId', $user->id)->first();
             
 
-            return response()->json([
+            $checkStaffHaveHotel = DB::table('listStaff')->where('StaffId',$getStaff->id)->first();
+
+            // if($getStaff) {
+            //     return response()->json(['errors' => $getStaff], 401);
+            // }
+
+            if(!$checkStaffHaveHotel) {
+                 return response()->json([
                 'id' => $user->id,
                 'email' => $user->email,
                 'name' => $user->name,
-                'Telephone' => $user->Telephone,
+                'Type' => $user->Type,
+                'id_hotel' => 'underfine'
             ], 200);
+            }
+            else {
+                return response()->json([
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'Type' => $user->Type,
+                'id_hotel' => $checkStaffHaveHotel->HotelId
+            ], 200);
+            }
+
+
+
+            // if($checkStaffHaveHotel->HotelId){
+            //     return response()->json([
+            //     'id' => $user->id,
+            //     'email' => $user->email,
+            //     'name' => $user->name,
+            //     'Telephone' => $user->Telephone,
+            //     'Type' => $user->Type,
+            //     'id_hotel' => $checkStaffHaveHotel->HotelId
+            // ], 200);
+            // }
+            // else {
+            //   return response()->json([
+            //     'id' => $user->id,
+            //     'email' => $user->email,
+            //     'name' => $user->name,
+            //     'Telephone' => $user->Telephone,
+            //     'Type' => $user->Type,
+            //     'id_hotel' => null
+            // ], 200);  
+            // }
         }catch (Exception $e){
             return response()->json(['message' => $e],500);
         }
