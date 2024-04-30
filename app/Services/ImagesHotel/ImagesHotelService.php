@@ -12,4 +12,8 @@ class ImagesHotelService extends BaseService implements IImagesHotelService
     {
         parent::__construct($repository);
     }
+    public function getAvartaByHotelId(string $id)
+    {
+        return $this->repository->getAvartaByHotelId($id);
+    }
 }

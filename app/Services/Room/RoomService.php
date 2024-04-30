@@ -19,4 +19,8 @@ class RoomService extends BaseService implements IRoomService
     {
         return $this->repository->getListByTypeRoomId($id);
     }
+    public function getOneById(string $id)
+    {
+        return $this->repository->getOneById($id);
+    }
 }

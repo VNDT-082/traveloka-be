@@ -9,6 +9,8 @@ use App\Repositories\BookingHotel\BookingHotelRepository;
 use App\Repositories\BookingHotel\IBookingHotelRepository;
 use App\Repositories\ConvenientHotel\ConvenientHotelRepository;
 use App\Repositories\ConvenientHotel\IConvenientHotelRepository;
+use App\Repositories\DiaDiemLanCan\DiaDiemLanCanRepository;
+use App\Repositories\DiaDiemLanCan\IDiaDiemLanCanRepository;
 use App\Repositories\Guest\GuestRepository;
 use App\Repositories\Guest\IGuestRepository;
 use App\Repositories\Hotel\HotelRepository;
@@ -49,6 +51,8 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(IBookingHotelRepository::class, BookingHotelRepository::class);
 
         $this->app->bind(IConvenientHotelRepository::class, ConvenientHotelRepository::class);
+
+        $this->app->bind(IDiaDiemLanCanRepository::class, DiaDiemLanCanRepository::class);
 
         $this->app->bind(IGuestRepository::class, GuestRepository::class);
 
