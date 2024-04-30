@@ -11,4 +11,8 @@ class Guest_Model extends Model
     protected $table = 'guest';
     protected $primary = 'id';
     public $incrementing = false;
+    public function rates()
+    {
+        return $this->hasMany(RateHotel_Model::class, 'GuestId', 'id');
+    }
 }

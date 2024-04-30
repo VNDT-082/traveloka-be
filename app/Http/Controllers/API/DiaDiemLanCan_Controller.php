@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Services\Room\IRoomService;
+use App\Services\DiaDiemLanCan\IDiaDiemLanCanService;
 use Illuminate\Http\Request;
 
-class RoomController extends Controller
+class DiaDiemLanCan_Controller extends Controller
 {
-    protected $IRoomService;
-    public function __construct(IRoomService $IRoomService)
+    protected $IDiaDiemLanCanService;
+    public function __construct(IDiaDiemLanCanService $IDiaDiemLanCanService)
     {
-        $this->IRoomService = $IRoomService;
+        $this->IDiaDiemLanCanService = $IDiaDiemLanCanService;
     }
     /**
      * Display a listing of the resource.
@@ -20,36 +20,21 @@ class RoomController extends Controller
     {
         //
     }
-    //Lay top 10 records dau tien
-    public function paginate(Request $request)
-    {
-    }
 
-    public function getListByTypeRoomID(Request $request)
-    {
-        if ($request->query('typeRoomID')) {
-            $typeRoomID = $request->query('typeRoomID');
-            if ($this->IRoomService->getListByTypeRoomID($typeRoomID)->count() > 0)
-                return [
-                    'result' => $this->IRoomService->getListByTypeRoomID($typeRoomID),
-                    'total' => $this->IRoomService->count()
-                ];
-        }
-        return [
-            'result' => null,
-            'total' => 0
-        ];
-    }
-    public function getOneById(Request $request)
+    /**
+     * Display a listing of the resource by hotel id.
+     */
+    public function getListById(Request $request)
     {
         if ($request->query('id')) {
             $id = $request->query('id');
-            $response = $this->IRoomService->getOneById($id);
+            $response = $this->IDiaDiemLanCanService->getListById($id);
             return $response ? ['status' => 200, 'result' => $response]
                 : ['status' => 200, 'result' => 'NOT_FOUND'];
         }
         return ['status' => 404, 'result' => 'NOT_FOUND'];
     }
+
     /**
      * Store a newly created resource in storage.
      */

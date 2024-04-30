@@ -6,4 +6,5 @@ use App\Repositories\IBaseRepository;
 
 interface IImagesHotelRepository extends IBaseRepository
 {
+    public function getAvartaByHotelId(string $id);
 }

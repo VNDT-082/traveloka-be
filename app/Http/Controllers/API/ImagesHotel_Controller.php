@@ -46,6 +46,16 @@ class ImagesHotel_Controller extends Controller
         }
         return ['status' => 404, 'result' => 'NOT_FOUND'];
     }
+    public function getAvartaByHotelId(Request $request)
+    {
+        if ($request->query('id')) {
+            $id = $request->query('id');
+            $response = $this->IImagesService->getAvartaByHotelId($id);
+            return $response ? ['status' => 200, 'result' => $response]
+                : ['status' => 200, 'result' => 'NOT_FOUND'];
+        }
+        return ['status' => 404, 'result' => 'NOT_FOUND'];
+    }
 
     /**
      * Update the specified resource in storage.

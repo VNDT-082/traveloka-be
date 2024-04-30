@@ -15,4 +15,8 @@ class RoomRepository extends BaseRepository implements IRoomRepository
     {
         return $this->model::where('TypeRoomId', $id)->get();
     }
+    public function getOneById(string $id)
+    {
+        return $this->model::with('typeroom', 'typeroom.hotel')->where('id', '=', $id)->first();
+    }
 }

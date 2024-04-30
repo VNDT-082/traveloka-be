@@ -45,18 +45,19 @@ class HotelRepository extends BaseRepository implements IHotelRepository
 
     public function getById($id)
     {
-        $model = parent::getById($id);
-        if ($model instanceof Hotel_Model) {
-            //lay danh sach hinh anh cua phong
-            $model->images[] = $this->IImagesHotelRepository->where('HotelId', $model->id, '=');
-            $model->convenients[] = $this->IConvenientHotelRepository->where('HotelId', $model->id, '=');
-            $model->policies[] = $this->IPolicyHotelRepository->where('HotelId', $model->id, '=');
-            $model->typeRooms[] = $this->ITypeRoomRepository->where('HotelId', $model->id, '=');
-            $model->rates[] = $this->IRateHotelRepository->where('HotelId', $model->id, '=');
+        $model = parent::with(['images', 'convenients', 'policies', 'typeRooms', 'rates', 'rates.guest', 'province'])
+            ->where('id', '=', $id)->first();
+        // if ($model instanceof Hotel_Model) {
+        //     //lay danh sach hinh anh cua phong
+        //     $model->images[] = $this->IImagesHotelRepository->where('HotelId', $model->id, '=');
+        //     $model->convenients[] = $this->IConvenientHotelRepository->where('HotelId', $model->id, '=');
+        //     $model->policies[] = $this->IPolicyHotelRepository->where('HotelId', $model->id, '=');
+        //     $model->typeRooms[] = $this->ITypeRoomRepository->where('HotelId', $model->id, '=');
+        //     $model->rates[] = $this->IRateHotelRepository->where('HotelId', $model->id, '=');
 
-            return $model;
-        }
-        return null;
+        //     return $model;
+        // }
+        return $model;
     }
 
     public function search(
