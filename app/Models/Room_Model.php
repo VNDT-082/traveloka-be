@@ -11,4 +11,8 @@ class Room_Model extends Model
     protected $table = 'room';
     protected $primary = 'id';
     public $incrementing = false;
+    public function typeroom()
+    {
+        return $this->belongsTo(TypeRoom_Model::class, 'TypeRoomId', 'id');
+    }
 }

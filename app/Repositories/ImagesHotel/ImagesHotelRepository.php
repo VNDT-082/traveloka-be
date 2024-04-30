@@ -11,4 +11,9 @@ class ImagesHotelRepository extends BaseRepository implements IImagesHotelReposi
     {
         parent::__construct($model);
     }
+    public function getAvartaByHotelId(string $id)
+    {
+        return $this->model::where('HotelId', '=', $id)
+            ->where('TypeRoom', '=', 'None;Ảnh bìa')->first();
+    }
 }

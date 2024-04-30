@@ -33,4 +33,8 @@ class Hotel_Model extends Model
     {
         return $this->hasMany(RateHotel_Model::class, 'HotelId', 'id');
     }
+    public function province()
+    {
+        return $this->belongsTo(Province_Model::class,'Province_Id','id');
+    }
 }

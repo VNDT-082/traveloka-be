@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\DiaDiemLanCan_Controller;
 use App\Http\Controllers\API\Guest_Controller;
 use App\Http\Controllers\API\Hotel_Controller;
 use App\Http\Controllers\API\HotelController;
@@ -57,6 +58,8 @@ Route::post('/login-administrator', [AuthController::class, 'loginAdminHotel']);
 // dang ky route ImagesHotel
 Route::prefix('image-hotel')->group(function () {
     Route::get('get-all', [ImagesHotel_Controller::class, 'index'])->name('imagesHotel');
+    Route::get('get-avarta-by-hotel-id', [ImagesHotel_Controller::class, 'getAvartaByHotelId'])
+        ->name('imagesHotel.getAvartaByHotelId');
 
     //param: id
     Route::get('get-one-by-id', [ImagesHotel_Controller::class, 'show'])->name('imagesHotel.getOneById');
@@ -71,4 +74,10 @@ Route::prefix('province')->group(function () {
 Route::prefix('room')->group(function () {
     Route::get('get-list-by-type-room-id', [RoomController::class, 'getListByTypeRoomID'])
         ->name('room.getListByTypeRoomID');
+    Route::get('get-one-by-id', [RoomController::class, 'getOneById'])->name('room.getOneByID');
+});
+
+// dang ky route DiaDiemLanCan
+Route::prefix('diadiemlancan')->group(function () {
+    Route::get('get-list-by-id', [DiaDiemLanCan_Controller::class, 'getListById'])->name('diadiemlancan.getListById');
 });

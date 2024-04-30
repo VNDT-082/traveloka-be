@@ -9,6 +9,8 @@ use App\Services\BookingHotel\BookingHotelService;
 use App\Services\BookingHotel\IBookingHotelService;
 use App\Services\ConvenientHotel\ConvenientHotelService;
 use App\Services\ConvenientHotel\IConvenientHotelService;
+use App\Services\DiaDiemLanCan\DiaDiemLanCanService;
+use App\Services\DiaDiemLanCan\IDiaDiemLanCanService;
 use App\Services\Guest\GuestService;
 use App\Services\Guest\IGuestService;
 use App\Services\Hotel\HotelService;
@@ -48,6 +50,8 @@ class ServiceServiceProvider extends ServiceProvider
         $this->app->bind(IBookingHotelService::class, BookingHotelService::class);
 
         $this->app->bind(IConvenientHotelService::class, ConvenientHotelService::class);
+
+        $this->app->bind(IDiaDiemLanCanService::class, DiaDiemLanCanService::class);
 
         $this->app->bind(IGuestService::class, GuestService::class);
 
