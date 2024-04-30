@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Services\Room\IRoomService;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
@@ -71,4 +73,55 @@ class RoomController extends Controller
     {
         //
     }
+
+ public function insert_room(Request $request) {
+         try{
+            $currentDateTime = date("YmdHis") . substr((string)microtime(true), 2, 6);
+            $randomIdRoom = "RO". $currentDateTime . rand(0, 9999);
+            $id= $randomIdRoom;
+            $TypeRoomId= $request->typeRoom_id;
+            $State= (empty($request->State)) ? 0 :  $request->State ;
+            $TimeRecive= (empty($request->TimeRecive)) ? null :  $request->TimeRecive ;
+            $TimeLeave= (empty($request->TimeLeave)) ? null :  $request->TimeLeave ;
+            $Gift=(empty($request->Gift)) ? 0 :  $request->Gift ;
+            $Discount=(empty($request->Discount)) ? 0 :  $request->Discount ;
+            $Breakfast= (empty($request->Breakfast)) ? 0 :  $request->Breakfast ;
+            $Wifi= (empty($request->Wifi)) ? 0 :  $request->Wifi ;
+            $NoSmoking= (empty($request->NoSmoking)) ? 1 :  $request->NoSmoking ;
+            $Cancel= (empty($request->Cancel)) ? 0 :  $request->Cancel ;
+            $ChangeTimeRecive= (empty($request->ChangeTimeRecive)) ? 0 :  $request->ChangeTimeRecive ;
+            $RoomName= (empty($request->RoomName)) ? 0 :  $request->name_room  ;
+            $Hinh_Thuc_Thanh_Toan= (empty($request->Hinh_Thuc_Thanh_Toan)) ? 1:  $request->Hinh_Thuc_Thanh_Toan ;
+            $Bao_Gom_Thue_Va_Phi= (empty($request->Bao_Gom_Thue_Va_Phi)) ? 0 :  $request->Bao_Gom_Thue_Va_Phi ;
+            
+            $sql = "INSERT INTO room(id, TypeRoomId, State, TimeRecive, TimeLeave, Gift, Discount, Breakfast, Wifi, NoSmoking, Cancel, ChangeTimeRecive, RoomName, Hinh_Thuc_Thanh_Toan, Bao_Gom_Thue_Va_Phi)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)";
+
+            DB::insert($sql, [
+                $id,
+                $TypeRoomId,
+                $State ,
+                $TimeRecive,
+                $TimeLeave,
+                $Gift,
+                $Discount,
+                $Breakfast,
+                $Wifi,
+                $NoSmoking,
+                $Cancel,
+                $ChangeTimeRecive,
+                $RoomName,
+                $Hinh_Thuc_Thanh_Toan,
+                $Bao_Gom_Thue_Va_Phi,
+            ]);
+            return response()->json([
+                'id' => $id,
+            ], 200);
+         } 
+         catch (Exception $e) {
+            return response()->json(['message' => $e],500);
+         }
+    }
+
+
 }

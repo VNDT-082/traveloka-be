@@ -6,10 +6,13 @@ use App\Http\Controllers\API\HotelController;
 use App\Http\Controllers\API\ImagesHotel_Controller;
 use App\Http\Controllers\API\Province_Controller;
 use App\Http\Controllers\API\RoomController;
+use App\Http\Controllers\API\ImageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\Staff_Controller;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -34,7 +37,16 @@ Route::prefix('hotel')->group(function () {
     Route::get('/hotels-by-province', [HotelController::class, 'getHotelsByProvince']);
 
     Route::get('/hotels', [HotelController::class, 'getAllHotels']);
+
+    Route::post('/insert-hotel', [HotelController::class, 'insert_hotel']);
+
+    Route::post('/insert-typeroom', [HotelController::class, 'insert_typeroom']);
 });
+
+//Room
+
+Route::post('/room/insert-room', [RoomController::class, 'insert_room']);
+
 
 
 //Authen and info
@@ -52,11 +64,20 @@ Route::get('/get-user-info', [AuthController::class, 'getUserInfo']);
 Route::post('/login-administrator', [AuthController::class, 'loginAdminHotel']);
 
 
+//Upload
+Route::post('/upload-image', [ImagesHotel_Controller::class, 'upload']);
+
+
+//?? Staff
+
+Route::post('/staff/insert', [Staff_Controller::class, 'insertStallToHotell']);
 
 
 // dang ky route ImagesHotel
 Route::prefix('image-hotel')->group(function () {
     Route::get('get-all', [ImagesHotel_Controller::class, 'index'])->name('imagesHotel');
+
+
 
     //param: id
     Route::get('get-one-by-id', [ImagesHotel_Controller::class, 'show'])->name('imagesHotel.getOneById');

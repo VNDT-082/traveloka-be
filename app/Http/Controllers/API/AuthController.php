@@ -290,7 +290,8 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'name' => $user->name,
                 'Type' => $user->Type,
-                'id_hotel' => 'underfine'
+                'id_hotel' => 'underfine',
+                "id_staff" => $getStaff->id
             ], 200);
             }
             else {
@@ -299,7 +300,8 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'name' => $user->name,
                 'Type' => $user->Type,
-                'id_hotel' => $checkStaffHaveHotel->HotelId
+                "id_staff" => $getStaff->id,
+                'id_hotel' => $checkStaffHaveHotel->HotelId,
             ], 200);
             }
 

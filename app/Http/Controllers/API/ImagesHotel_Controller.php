@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Services\ImagesHotel\IImagesHotelService;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ImagesHotel_Controller extends Controller
 {
@@ -61,5 +63,41 @@ class ImagesHotel_Controller extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function upload(Request $request)
+    {
+
+
+        
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('public/images', $filename);
+
+            // Lưu thông tin hình ảnh vào cơ sở dữ liệu
+            $id_hotel = $request->input('id_hotel');
+            $id_typeroom = $request->input('id_typeroom');
+            $region = $request->input('region');
+
+            $type_room_region = $id_typeroom . ";" . $region;
+
+            
+            $currentDateTime = date("YmdHis");
+            $randomIdImage = "RO". $currentDateTime . rand(0, 9999);
+
+
+            DB::table('imageshotel')->insert([
+                'id' =>$randomIdImage,
+                'HotelId' => $id_hotel,
+                'FileName' => $filename,
+                'TypeRoom' => $type_room_region,
+            ]);
+            return response()->json(['message' => $type_room_region], 200);
+            }
+            else {
+            return response()->json(['message' => 'No image uploaded'], 400);
+
+            }
     }
 }
