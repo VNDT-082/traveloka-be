@@ -42,6 +42,9 @@ Route::prefix('hotel')->group(function () {
     Route::post('/insert-hotel', [HotelController::class, 'insert_hotel']);
 
     Route::post('/insert-typeroom', [HotelController::class, 'insert_typeroom']);
+
+    Route::get('/get-hotel', [HotelController::class, 'getHotel']);
+    
 });
 
 //Room

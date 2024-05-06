@@ -167,20 +167,45 @@ class AuthController extends Controller
     public function getMe(Request $request) {
         
         // Tìm kiếm thông tin người dùng dựa trên ID
-         $id = $request->input('id');
-        $user = DB::table('users')->where('id', $id)->first();        
+        $id = $request->input('id');
+        $user = DB::table('users')->where('id', $id)->first();    
+        
+        if(!$user){
+            return response()->json(["user not found"
+            ], 404);
+        }
         // Kiểm tra xem người dùng có tồn tại không
-        if ($user) {
-             return response()->json([
+        if ($user->Type === 'Staff') {  
+                $getStaff = DB::table('staff')->where('UserAccountId', $user->id)->first();
+            $checkStaffHaveHotel = DB::table('listStaff')->where('StaffId',$getStaff->id)->first();
+
+            if(!$checkStaffHaveHotel) {
+                 return response()->json([
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'Type' => $user->Type,
+                'id_hotel' => 'underfine',
+                "id_staff" => $getStaff->id
+            ], 200);
+            }
+            else {
+                return response()->json([
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'Type' => $user->Type,
+                "id_staff" => $getStaff->id,
+                'id_hotel' => $checkStaffHaveHotel->HotelId,
+            ], 200);
+            }      
+        } else {
+                return response()->json([
                 'id' => $user->id,
                 'email' => $user->email,
                 'name' => $user->name,
                 'Telephone' => $user->Telephone,
             ], 200);
-        } else {
-            return response()->json([
-                'message' => 'User not found.',
-            ], 404);
         }
     } 
 

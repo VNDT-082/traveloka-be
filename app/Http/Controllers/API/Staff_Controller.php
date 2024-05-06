@@ -74,7 +74,6 @@ class Staff_Controller extends Controller
             return response()->json([
                 'id_hotel' => $id_hotel,
                 'id_staff' => $id_staff,
-
             ], 200);
         }
         catch(Exception $e) {

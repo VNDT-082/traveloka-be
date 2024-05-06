@@ -152,4 +152,36 @@ class HotelController extends Controller
             return response()->json(['message' => $e],500);
          }
     }
+
+        public function getHotel(Request $request) {
+        try{
+            $id= $request->id;
+
+            $sql = "SELECT 
+                        hotel.*, 
+                        COUNT(typeroom.id) AS number_of_room_types,
+                        SUM(CASE WHEN room.State = 0 THEN 1 ELSE 0 END) AS total_rooms_state_0
+                    FROM 
+                        hotel
+                    LEFT JOIN 
+                        typeroom ON hotel.id = typeroom.HotelId
+                    LEFT JOIN 
+                        room ON typeroom.id = room.TypeRoomId
+                    WHERE 
+                        hotel.id = '$id'
+                    GROUP BY 
+                        hotel.id, hotel.Name, hotel.Address, hotel.Telephone, hotel.Description, hotel.LocationDetail, hotel.IsActive, hotel.TimeCheckIn, hotel.TimeCheckOut,hotel.created_at, hotel.updated_at, hotel.Type, hotel.StarRate, hotel.Province_Id ;
+                    ";
+
+            $hotel = DB::select($sql);
+            return response()->json($hotel);
+
+        }     
+         catch (Exception $e) {
+            return response()->json(['message' => $e],500);
+         }
+    }
+
+
+
 }
