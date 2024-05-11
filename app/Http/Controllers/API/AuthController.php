@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use PhpParser\Node\Stmt\TryCatch;
 
+const EMAIL=202;
+const PHONE=201;
+const PASSWORD=205;
+const NOCONTENT=204;
+const SUCESS=200;
+const FAILED=404;
+
+
 class AuthController extends Controller
 {
     protected $authService;
@@ -47,8 +55,15 @@ class AuthController extends Controller
         // Kiểm tra email đã tồn tại trong cơ sở dữ liệu chưa
         $existingUser = DB::table('users')->where('email', $request->email)->first();
         if ($existingUser) {
-            // Nếu email đã tồn tại, trả về thông báo lỗi
-            return response()->json(['errors' => 'Email already exists'], 422);
+            return response()->json(['errors' => 'Email đã được đăng ký'], 202);
+        }
+        $existingPhone = DB::table('users')->where('Telephone', $request->Telephone)->first();
+        if ($existingPhone) {
+            return response()->json(['errors' => 'Số điện thoại đã được đăng ký'], 201);
+        }
+        $radomcccd = '';
+        for ($i = 0; $i < 10; $i++) {
+        $radomcccd .= mt_rand(0, 9); // Sử dụng mt_rand để tạo số ngẫu nhiên
         }
 
         $sql = "INSERT INTO users (id , name, email, password, Telephone, Type) VALUES (?,?, ?, ?, ?, ?)";
@@ -69,7 +84,7 @@ class AuthController extends Controller
                 $request->email,
                 $request->Telephone,
                 $request->name,
-                "00000000000",
+                $radomcccd,
                 "1",
                 $request->Type,
             ]);
@@ -120,12 +135,17 @@ class AuthController extends Controller
     {
         try {
             if (empty($request->email) || empty($request->password)) {
-                return response()->json(['errors' => 'Invalid input data'], 422);
+                return response()->json(['errors' => 'Invalid input data'], NOCONTENT);
             }
 
             $user = DB::table('users')->where('email', $request->email)->first();
-            if (!$user || !Hash::check($request->password, $user->password)) {
-                return response()->json(['errors' => 'Invalid credentials'], 401);
+            if (!$user) {
+                return response()->json(['errors' => 'Invalid credentials'], EMAIL);
+            }
+            if(!Hash::check($request->password, $user->password))
+            {
+                return response()->json(['errors' => 'Invalid credentials'], PASSWORD);
+
             }
 
             return response()->json([
@@ -133,10 +153,10 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'name' => $user->name,
                 'Telephone' => $user->Telephone,
-            ], 200);
+            ], SUCESS);
         } catch (Exception $e) {
             Log::error('Error while logging in user: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to login user' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to login user' . $e->getMessage()], FAILED);
         }
     }
 
@@ -292,17 +312,19 @@ class AuthController extends Controller
     public function loginAdminHotel(Request $request) {
         try{
             if (empty($request->email) || empty($request->password)) {
-                return response()->json(['errors' => 'Invalid input data'], 422);
+                return response()->json(['errors' => 'Invalid input data'], NOCONTENT);
             }
 
             $user = DB::table('users')->where('email', $request->email)->first();
-            if (!$user || !Hash::check($request->password, $user->password)) {
-                return response()->json(['errors' => 'Invalid credentials'], 401);
+            if (!$user) {
+                return response()->json(['errors' => 'Email chưa được đăng ký'], EMAIL);
+            }
+            if(!Hash::check($request->password, $user->password))
+            {
+                return response()->json(['errors' => 'Sai mật khẩu'], PASSWORD);
             }
 
             $getStaff = DB::table('staff')->where('UserAccountId', $user->id)->first();
-            
-
             $checkStaffHaveHotel = DB::table('listStaff')->where('StaffId',$getStaff->id)->first();
 
             // if($getStaff) {
@@ -317,7 +339,7 @@ class AuthController extends Controller
                 'Type' => $user->Type,
                 'id_hotel' => 'underfine',
                 "id_staff" => $getStaff->id
-            ], 200);
+            ], SUCESS);
             }
             else {
                 return response()->json([
@@ -327,7 +349,7 @@ class AuthController extends Controller
                 'Type' => $user->Type,
                 "id_staff" => $getStaff->id,
                 'id_hotel' => $checkStaffHaveHotel->HotelId,
-            ], 200);
+            ], SUCESS);
             }
 
 
@@ -353,7 +375,7 @@ class AuthController extends Controller
             // ], 200);  
             // }
         }catch (Exception $e){
-            return response()->json(['message' => $e],500);
+            return response()->json(['message' => $e],FAILED);
         }
     }
 

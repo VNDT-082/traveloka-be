@@ -175,13 +175,10 @@ class HotelController extends Controller
 
             $hotel = DB::select($sql);
             return response()->json($hotel);
-
         }     
          catch (Exception $e) {
             return response()->json(['message' => $e],500);
          }
     }
-
-
 
 }
