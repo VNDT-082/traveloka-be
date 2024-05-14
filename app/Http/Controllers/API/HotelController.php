@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\API;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Hotel\MyHotelService;
@@ -34,23 +35,24 @@ class HotelController extends Controller
         return response()->json(['hotels' => $hotels]);
     }
 
-    public function insert_hotel(Request $request) {
-         try{
+    public function insert_hotel(Request $request)
+    {
+        try {
             $currentDateTime = date("YmdHis");
 
-            $randomIdHotel = "HT". $currentDateTime;
+            $randomIdHotel = "HT" . $currentDateTime;
 
-            $id= $randomIdHotel;
-            $Name= $request->Name;
-            $Address= $request->Address;
-            $Telephone= $request->Telephone;
-            $Description= (empty($request->Description)) ? "" :  $request->Description ;
-            $LocationDetail=(empty($request->LocationDetail)) ? "" :  $request->LocationDetail ;
-            $IsActive=(empty($request->IsActive)) ? 0 :  $request->IsActive ;
-            $TimeCheckIn=$request->TimeCheckIn;
-            $TimeCheckOut= $request->TimeCheckOut;
-            $Type= (empty($request->Type)) ? "" :  $request->Type ;
-            $StarRate= (empty($request->StarRate)) ? 0 :  $request->StarRate ;
+            $id = $randomIdHotel;
+            $Name = $request->Name;
+            $Address = $request->Address;
+            $Telephone = $request->Telephone;
+            $Description = (empty($request->Description)) ? "" :  $request->Description;
+            $LocationDetail = (empty($request->LocationDetail)) ? "" :  $request->LocationDetail;
+            $IsActive = (empty($request->IsActive)) ? 0 :  $request->IsActive;
+            $TimeCheckIn = $request->TimeCheckIn;
+            $TimeCheckOut = $request->TimeCheckOut;
+            $Type = (empty($request->Type)) ? "" :  $request->Type;
+            $StarRate = (empty($request->StarRate)) ? 0 :  $request->StarRate;
             // $Province_Id=(empty($request->Province_Id)) ? "NULL" :  $request->Province_Id ;
 
 
@@ -59,7 +61,7 @@ class HotelController extends Controller
 
             DB::insert($sql, [
                 $id,
-                $Name ,
+                $Name,
                 $Address,
                 $Telephone,
                 $Description,
@@ -75,38 +77,37 @@ class HotelController extends Controller
             return response()->json([
                 'id' => $randomIdHotel,
             ], 200);
-         }      
-
-           
-         catch (Exception $e) {
-            return response()->json(['message' => $e],500);
-         }
+        } catch (Exception $e) {
+            return response()->json(['message' => $e], 500);
+        }
     }
 
-     public function insert_typeroom(Request $request) {
-         try{
+    public function insert_typeroom(Request $request)
+    {
+        try {
             $currentDateTime = date("YmdHis");
-            $randomIdTyperoom = "TR". $currentDateTime;
-            $id= $randomIdTyperoom;
-            $HotelId= $request->HotelId;
-            $Name= $request->Name;
-            $ConvenientRoom= (empty($request->ConvenientRoom)) ? "" :  $request->ConvenientRoom ;
-            $ConvenientBathRoom= (empty($request->ConvenientBathRoom)) ? "" :  $request->ConvenientBathRoom ;
-            $FloorArea=(empty($request->FloorArea)) ? 0 :  $request->FloorArea ;
-            $MaxQuantityMember=(empty($request->MaxQuantityMember)) ? 0 :  $request->MaxQuantityMember ;
-            $Price=$request->Price;
-            $Voi_Tam_Dung= (empty($request->Voi_Tam_Dung)) ? 0 :  $request->Voi_Tam_Dung ;
-            $Ban_Cong_San_Hien= (empty($request->Ban_Cong_San_Hien)) ? 0 :  $request->Ban_Cong_San_Hien ;
-            $Khu_Vuc_Cho= (empty($request->Khu_Vuc_Cho)) ? 0 :  $request->Khu_Vuc_Cho ;
-            $May_Lanh= (empty($request->May_Lanh)) ? 0 :  $request->May_Lanh ;
-            $Nuoc_Nong= (empty($request->Nuoc_Nong)) ? 0 :  $request->Nuoc_Nong ;
-            $Bon_Tam= (empty($request->Bon_Tam)) ? 0 :  $request->Bon_Tam ;
-            $TenLoaiGiuong= (empty($request->TenLoaiGiuong)) ? 0 :  $request->TenLoaiGiuong ;
-            $SoLuongGiuong= (empty($request->SoLuongGiuong)) ? 0 :  $request->SoLuongGiuong ;
-            $Lo_Vi_Song= (empty($request->Lo_Vi_Song)) ? 0 :  $request->Lo_Vi_Song ;
-            $Tu_Lanh= (empty($request->Tu_Lanh)) ? 0 :  $request->Tu_Lanh ;
-            $May_Giat= (empty($request->May_Giat)) ? 0 :  $request->May_Giat ;
-            $No_Moking= (empty($request->No_Moking)) ? 0 :  $request->No_Moking ;
+            $randomIdTyperoom = "TR" . $currentDateTime;
+            $id = $randomIdTyperoom;
+            $HotelId = $request->HotelId;
+            $Name = $request->Name;
+            $ConvenientRoom = (empty($request->ConvenientRoom)) ? "" :  $request->ConvenientRoom;
+            $ConvenientBathRoom = (empty($request->ConvenientBathRoom)) ? "" :  $request->ConvenientBathRoom;
+            $FloorArea = (empty($request->FloorArea)) ? 0 :  $request->FloorArea;
+            $MaxQuantityMember = (empty($request->MaxQuantityMember)) ? 0 :  $request->MaxQuantityMember;
+            $Price = $request->Price;
+            $Voi_Tam_Dung = (empty($request->Voi_Tam_Dung)) ? 0 :  $request->Voi_Tam_Dung;
+            $Ban_Cong_San_Hien = (empty($request->Ban_Cong_San_Hien)) ? 0 :  $request->Ban_Cong_San_Hien;
+            $Khu_Vuc_Cho = (empty($request->Khu_Vuc_Cho)) ? 0 :  $request->Khu_Vuc_Cho;
+            $May_Lanh = (empty($request->May_Lanh)) ? 0 :  $request->May_Lanh;
+            $Nuoc_Nong = (empty($request->Nuoc_Nong)) ? 0 :  $request->Nuoc_Nong;
+            $Bon_Tam = (empty($request->Bon_Tam)) ? 0 :  $request->Bon_Tam;
+            $TenLoaiGiuong = (empty($request->TenLoaiGiuong)) ? 0 :  $request->TenLoaiGiuong;
+            $SoLuongGiuong = (empty($request->SoLuongGiuong)) ? 0 :  $request->SoLuongGiuong;
+            $Lo_Vi_Song = (empty($request->Lo_Vi_Song)) ? 0 :  $request->Lo_Vi_Song;
+            $Tu_Lanh = (empty($request->Tu_Lanh)) ? 0 :  $request->Tu_Lanh;
+            $May_Giat = (empty($request->May_Giat)) ? 0 :  $request->May_Giat;
+            $No_Moking = (empty($request->No_Moking)) ? 0 :  $request->No_Moking;
+
 
 
 
@@ -122,7 +123,7 @@ class HotelController extends Controller
             DB::insert($sql, [
                 $id,
                 $HotelId,
-                $Name ,
+                $Name,
                 $ConvenientRoom,
                 $ConvenientBathRoom,
                 $FloorArea,
@@ -141,21 +142,54 @@ class HotelController extends Controller
                 $May_Giat,
                 $No_Moking,
             ]);
-            return response()->json([
-                'id' => $id,
-                'hotel_id' => $HotelId,
-            ], 200);
-         }      
 
-           
-         catch (Exception $e) {
-            return response()->json(['message' => $e],500);
-         }
+
+
+            if ($request->hasFile('file') && $request->has('region')) {
+                $images = $request->file('file');
+                $regions = $request->input('region');
+
+                if (count($images) === count($regions)) {
+                    for ($i = 0; $i < count($images); $i++) {
+                        $image = $images[$i];
+                        $region = $regions[$i];
+
+                        $filename = time() . '_' . $image->getClientOriginalName();
+                        $image->storeAs('public/images', $filename);
+
+                        $id_hotel = $request->input('id_hotel');
+                        $id_typeroom = $id;
+
+                        $type_room_region = $id_typeroom . ";" . $region;
+
+                        $currentDateTime = date("YmdHis");
+                        $randomIdImage = "RO" . $currentDateTime . rand(0, 9999);
+
+                        DB::table('imageshotel')->insert([
+                            'id' => $randomIdImage,
+                            'HotelId' => $id_hotel,
+                            'FileName' => $filename,
+                            'TypeRoom' => $type_room_region,
+                        ]);
+                    }
+                } else {
+                    return response()->json(['message' => 'error'], 500);
+                }
+
+                return response()->json([
+                    'id' => $id,
+                    'hotel_id' => $HotelId,
+                ], 200);
+            }
+        } catch (Exception $e) {
+            return response()->json(['message' => $e], 500);
+        }
     }
 
-        public function getHotel(Request $request) {
-        try{
-            $id= $request->id;
+    public function getHotel(Request $request)
+    {
+        try {
+            $id = $request->id;
 
             $sql = "SELECT 
                         hotel.*, 
@@ -175,10 +209,8 @@ class HotelController extends Controller
 
             $hotel = DB::select($sql);
             return response()->json($hotel);
-        }     
-         catch (Exception $e) {
-            return response()->json(['message' => $e],500);
-         }
+        } catch (Exception $e) {
+            return response()->json(['message' => $e], 500);
+        }
     }
-
 }
