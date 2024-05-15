@@ -44,7 +44,6 @@ Route::prefix('hotel')->group(function () {
     Route::post('/insert-typeroom', [HotelController::class, 'insert_typeroom']);
 
     Route::get('/get-hotel', [HotelController::class, 'getHotel']);
-    
 });
 
 //Room
@@ -52,10 +51,8 @@ Route::prefix('hotel')->group(function () {
 Route::post('/room/insert-room', [RoomController::class, 'insertRoom']);
 Route::get('/room/select-room', [RoomController::class, 'selectRoom']);
 Route::put('/room/update-room', [RoomController::class, 'updateRoom']);
-
 Route::get('/room/select-typeroom', [RoomController::class, 'selectTypeRoom']);
-
-
+Route::get('/image/select-image-by-typeroom', [ImageController::class, 'selectImageByIdTypeRoom']);
 
 //Authen and info
 Route::get('/check-email-exists', [AuthController::class, 'checkEmailExists']);

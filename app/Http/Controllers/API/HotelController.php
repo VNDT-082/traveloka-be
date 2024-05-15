@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Http\UploadedFile;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Hotel\MyHotelService;
@@ -9,6 +10,9 @@ use App\Models\Hotel_Model;
 use DateTime;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Validator;
 
 class HotelController extends Controller
 {
@@ -84,6 +88,26 @@ class HotelController extends Controller
 
     public function insert_typeroom(Request $request)
     {
+        //dd($request->file('file'));
+        //dd($request->all());
+
+
+        // $validate = Validator::make($request->all(), [
+        //     'file' => 'required|file|mimes:jpg,png,pdf|max:2048',
+        // ]);
+        // // $request->validate([
+        // //     'file' => 'required|file|mimes:jpg,png,pdf|max:2048',
+        // // ]);
+        // if ($validate->fails()) {
+        //     // return response()->json($request->file('file'), 500);
+        //     return response()->json([
+        //         'message' => $validate->errors()
+        //     ], 400);
+        // };
+
+
+        //return response()->json(['message' => $request->all()], 500);
+
         try {
             $currentDateTime = date("YmdHis");
             $randomIdTyperoom = "TR" . $currentDateTime;
@@ -110,7 +134,6 @@ class HotelController extends Controller
 
 
 
-
             // $Province_Id=(empty($request->Province_Id)) ? "NULL" :  $request->Province_Id ;
 
 
@@ -120,7 +143,7 @@ class HotelController extends Controller
              May_Giat, No_Moking)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-            DB::insert($sql, [
+            $typeroom = DB::insert($sql, [
                 $id,
                 $HotelId,
                 $Name,
@@ -142,20 +165,22 @@ class HotelController extends Controller
                 $May_Giat,
                 $No_Moking,
             ]);
-
-
-
-            if ($request->hasFile('file') && $request->has('region')) {
+            if ($request->hasFile('file')) {
                 $images = $request->file('file');
                 $regions = $request->input('region');
-
+                //return response()->json([count($images), count($regions)], 200);
+                //return response()->json(base64_encode(file_get_contents($images->getPathName())), 500);
                 if (count($images) === count($regions)) {
                     for ($i = 0; $i < count($images); $i++) {
                         $image = $images[$i];
                         $region = $regions[$i];
-
+                        //base64_encode(file_get_contents($file->getPathName()))
                         $filename = time() . '_' . $image->getClientOriginalName();
                         $image->storeAs('public/images', $filename);
+
+                        $baseUrl = URL::to('/');
+                        $url = Storage::url('public/images/' . $filename);
+                        $fullUrl = $baseUrl . $url;
 
                         $id_hotel = $request->input('id_hotel');
                         $id_typeroom = $id;
@@ -163,27 +188,49 @@ class HotelController extends Controller
                         $type_room_region = $id_typeroom . ";" . $region;
 
                         $currentDateTime = date("YmdHis");
-                        $randomIdImage = "RO" . $currentDateTime . rand(0, 9999);
+                        $randomIdImage = "image" . $currentDateTime . rand(0, 9999);
 
-                        DB::table('imageshotel')->insert([
+                        $res = DB::table('imageshotel')->insert([
                             'id' => $randomIdImage,
-                            'HotelId' => $id_hotel,
-                            'FileName' => $filename,
+                            'HotelId' => $HotelId,
+                            'FileName' => $fullUrl,
                             'TypeRoom' => $type_room_region,
                         ]);
+                        if ($res === false) {
+                            return response()->json([$res], 500);
+                        }
+                    }
+                    if ($typeroom) {
+                        return response()->json([$typeroom, $res], 200);
+                    } else {
+                        return response()->json([$typeroom, $res], 500);
                     }
                 } else {
                     return response()->json(['message' => 'error'], 500);
                 }
 
-                return response()->json([
-                    'id' => $id,
-                    'hotel_id' => $HotelId,
-                ], 200);
+                // return response()->json([
+                //     'id' => $id,
+                //     'hotel_id' => $HotelId,
+                // ], 200);
+            } else {
+                if ($typeroom) {
+                    return response()->json([
+                        'id' => $id,
+                        'hotel_id' => $HotelId,
+                    ], 200);
+                } else {
+                    return response()->json($typeroom, 500);
+                }
             }
         } catch (Exception $e) {
             return response()->json(['message' => $e], 500);
         }
+    }
+
+    public function upload(UploadedFile $request)
+    {
+        return response()->json($request->all());
     }
 
     public function getHotel(Request $request)
