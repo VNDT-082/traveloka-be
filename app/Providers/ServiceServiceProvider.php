@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use App\Services\AccountUser\AccountUserService;
 use App\Services\AccountUser\IAccountUserService;
+use App\Services\AdministrativeRegions\AdministrativeRegionsService;
+use App\Services\AdministrativeRegions\IAdministrativeRegionsService;
+use App\Services\AdministrativeUnits\AdministrativeUnitsService;
+use App\Services\AdministrativeUnits\IAdministrativeUnitsService;
 use App\Services\BaseService;
 use App\Services\BookingHotel\BookingHotelService;
 use App\Services\BookingHotel\IBookingHotelService;
@@ -11,6 +15,8 @@ use App\Services\ConvenientHotel\ConvenientHotelService;
 use App\Services\ConvenientHotel\IConvenientHotelService;
 use App\Services\DiaDiemLanCan\DiaDiemLanCanService;
 use App\Services\DiaDiemLanCan\IDiaDiemLanCanService;
+use App\Services\Districts\DistrictsService;
+use App\Services\Districts\IDistrictsService;
 use App\Services\Guest\GuestService;
 use App\Services\Guest\IGuestService;
 use App\Services\Hotel\HotelService;
@@ -26,6 +32,8 @@ use App\Services\PolicyHotel\IPolicyHotelService;
 use App\Services\PolicyHotel\PolicyHotelService;
 use App\Services\Province\IProvinceService;
 use App\Services\Province\ProvinceService;
+use App\Services\Provinces\IProvincesService;
+use App\Services\Provinces\ProvincesService;
 use App\Services\RateHotel\IRateHotelService;
 use App\Services\RateHotel\RateHotelService;
 use App\Services\Room\IRoomService;
@@ -34,6 +42,8 @@ use App\Services\Staff\IStaffService;
 use App\Services\Staff\StaffService;
 use App\Services\TypeRoom\ITypeRoomService;
 use App\Services\TypeRoom\TypeRoomService;
+use App\Services\Wards\IWardsService;
+use App\Services\Wards\WardsService;
 use Illuminate\Support\ServiceProvider;
 
 class ServiceServiceProvider extends ServiceProvider
@@ -74,6 +84,13 @@ class ServiceServiceProvider extends ServiceProvider
         $this->app->bind(IStaffService::class, StaffService::class);
 
         $this->app->bind(ITypeRoomService::class, TypeRoomService::class);
+
+        //-------------------------------------
+        $this->app->bind(IAdministrativeRegionsService::class, AdministrativeRegionsService::class);
+        $this->app->bind(IAdministrativeUnitsService::class, AdministrativeUnitsService::class);
+        $this->app->bind(IProvincesService::class, ProvincesService::class);
+        $this->app->bind(IDistrictsService::class, DistrictsService::class);
+        $this->app->bind(IWardsService::class, WardsService::class);
     }
 
     /**

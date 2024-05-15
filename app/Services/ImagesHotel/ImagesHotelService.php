@@ -16,4 +16,8 @@ class ImagesHotelService extends BaseService implements IImagesHotelService
     {
         return $this->repository->getAvartaByHotelId($id);
     }
+    public function getTop3ImageByHotelId(string $id)
+    {
+        return $this->repository->getTop3ImageByHotelId($id);
+    }
 }

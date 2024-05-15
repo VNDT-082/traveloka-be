@@ -11,6 +11,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\Districts_Controller;
+use App\Http\Controllers\API\Provinces_Controller;
+use App\Http\Controllers\API\Wards_Controller;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -27,6 +31,9 @@ Route::prefix('hotel')->group(function () {
 
     //param: $Location, $TimeCheckIn, $QuantityMember, $MaxRoomCount, $QuantityDay allow null
     Route::get('search', [Hotel_Controller::class, 'search'])->name('hotel.search');
+
+    //param: id
+    Route::get('get-list-by-province-id', [Hotel_Controller::class, 'getHotelsByProvinceId'])->name('hotel.getHotelsByProvinceId');
 
 
 
@@ -68,6 +75,7 @@ Route::prefix('image-hotel')->group(function () {
 // dang ky route Province
 Route::prefix('province')->group(function () {
     Route::get('get-page', [Province_Controller::class, 'paginate'])->name('province.getPage');
+    Route::get('get-all', [Province_Controller::class, 'getAll'])->name('province.getAll');
 });
 
 //dang ky rout Room
@@ -80,4 +88,23 @@ Route::prefix('room')->group(function () {
 // dang ky route DiaDiemLanCan
 Route::prefix('diadiemlancan')->group(function () {
     Route::get('get-list-by-id', [DiaDiemLanCan_Controller::class, 'getListById'])->name('diadiemlancan.getListById');
+});
+
+//dang ky guest
+Route::prefix('guest')->group(function () {
+    Route::get('get-one-by-email', [Guest_Controller::class, 'getOneByEmail'])->name('guest.getOneByEmail');
+});
+
+
+//dang ky tinh
+Route::prefix('provinces')->group(function () {
+    Route::get('get-all', [Provinces_Controller::class, 'getAll'])->name('provinces.getAll');
+});
+//dang ky huyen
+Route::prefix('districts')->group(function () {
+    Route::get('get-list-by-provinces-id', [Districts_Controller::class, 'getListByProvinceID'])->name(' districts.getListByProvinceID');
+});
+//dang ky xa
+Route::prefix('wards')->group(function () {
+    Route::get('get-list-by-district-id', [Wards_Controller::class, 'getListByDistrictID'])->name('wards.getListByDistrictID');
 });

@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Http\Controllers\API;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Hotel\MyHotelService;
 use App\Models\Hotel_Model;
+
 class HotelController extends Controller
 {
     protected $hotelService;
@@ -20,7 +22,6 @@ class HotelController extends Controller
 
         return response()->json(['hotels' => $hotels]);
     }
-
     public function getHotelsByProvince(Request $request)
     {
         $provinceName = $request->input('province');

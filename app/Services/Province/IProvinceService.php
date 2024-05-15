@@ -6,4 +6,5 @@ use App\Services\IBaseService;
 
 interface IProvinceService extends IBaseService
 {
+    public function getAll();
 }

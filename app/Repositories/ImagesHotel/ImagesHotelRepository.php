@@ -16,4 +16,9 @@ class ImagesHotelRepository extends BaseRepository implements IImagesHotelReposi
         return $this->model::where('HotelId', '=', $id)
             ->where('TypeRoom', '=', 'None;Ảnh bìa')->first();
     }
+    public function getTop3ImageByHotelId(string $id)
+    {
+        return $this->model::where('HotelId', '=', $id)
+            ->where('TypeRoom', '<>', 'None;Ảnh bìa')->take(3)->get();
+    }
 }

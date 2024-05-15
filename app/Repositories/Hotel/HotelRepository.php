@@ -14,6 +14,8 @@ use App\Repositories\TypeRoom\ITypeRoomRepository;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 
+use function Laravel\Prompts\select;
+
 class HotelRepository extends BaseRepository implements IHotelRepository
 {
     protected $IImagesHotelRepository;
@@ -60,98 +62,53 @@ class HotelRepository extends BaseRepository implements IHotelRepository
         // }
         return $model;
     }
+    public function getListByProvinceId($id)
+    {
+        return $this->model::with(['typeRooms'])->where('Province_Id', '=', $id)->get();
+    }
+    public function getTop5ByProvinceId($id)
+    {
+        return $this->model::with(['typeRooms'])->where('Province_Id', '=', $id)->take(5)->get();
+    }
 
     public function search(
-        $Location,
-        $TimeCheckIn = null,
-        $QuantityMember = null,
-        $MaxRoomCount = null,
-        $QuantityDay = null
+        $province = null,
+        $totalnight = null,
+        $totalmember = null,
+        $totalmemberchild = null,
+        $timereceive = null,
+        $totalroom = null
     ) {
         $query = "";
         $hotels = null;
 
-        $hotels = $this->model::with(['images', 'convenients', 'policies', 'typeRooms', 'rates'])
-            ->join('room as r', 'r.TypeRoomId', '=', 'tr.id')
-            ->leftJoin('typeroom as tr', 'tr.HotelId', '=', 'id')
-            // ->select('ht.*')
-            ->where('Address', 'LIKE', '%' . $Location . '%')
-            ->where('tr.MaxQuantityMember', $QuantityMember)
-            ->whereYear('r.TimeRecive', '=', date('Y', strtotime($TimeCheckIn)))
-            ->whereMonth('r.TimeRecive', '=', date('m', strtotime($TimeCheckIn)))
-            ->whereDay('r.TimeRecive', '=', date('d', strtotime($TimeCheckIn)))
-            ->whereRaw('DATEDIFF(r.TimeLeave, r.TimeRecive) = ?', [$QuantityDay])
-            ->limit(10)
-            ->get();
+        // $hotels = $this->model::with(['images', 'convenients', 'policies', 'typeRooms', 'rates'])
+        //     ->leftJoin('province', 'hotel.Province_Id', '=', 'province.id')
+        //     ->leftJoin('typeroom', 'hotel.id', '=', 'typeroom.HotelId')
+        //     ->leftJoin('room', 'typeroom.id', '=', 'room.TypeRoomId')
+        //     ->where(function ($query) {
+        //         $query->where('province.DisplayName', 'LIKE', '%Đà%')
+        //             ->orWhereNull('province.DisplayName')
+        //             ->orWhere('province.DisplayName', '');
+        //     })
+        //     ->where('typeroom.MaxQuantityMember', '>=', 2)
+        //     ->where('room.TimeRecive', '>', DB::raw('DATE("2024-05-15")'))
+        //     ->whereRaw('DATEDIFF(room.TimeLeave, room.TimeRecive) > 2')
+        //     ->groupBy('hotel.id,hotel.Name,hotel.Address,hotel.Telephone,hotel.Description,hotel.LocationDetail,hotel.IsActive,hotel.TimeCheckIn,hotel.TimeCheckOut,hotel.created_at,hotel.updated_at,hotel.Type,hotel.StarRate,hotel.Province_Id')
+        //     ->get();
 
-        // if ($Location != null) {
-        //     $hotels = $this->model::where('Address', 'like', "%" . $Location . "%")->get();
-        // } else if ($Location != null && $TimeCheckIn != null) {
-        //     $query = "SELECT  ht.*
-        //     FROM   `room` r, `typeroom` tr
-        //     LEFT JOIN `hotel` ht ON tr.HotelId =ht.id
-        //     WHERE 1 = 1 
-        //     AND ht.Address LIKE N'%" . $Location . "%'
-        //     AND YEAR(r.TimeRecive) = YEAR('" . $TimeCheckIn . "')
-        //     AND MONTH(r.TimeRecive)=MONTH('" . $TimeCheckIn . "')
-        //     AND DAY(r.TimeRecive)=DAY('" . $TimeCheckIn . "')
-        //     LIMIT 10 ";
-        //     $hotels = DB::select($query);
-        // } else if ($Location != null && $TimeCheckIn != null && $QuantityMember != null) {
-        //     $query = "SELECT  ht.*
-        //     FROM   `room` r, `typeroom` tr
-        //     LEFT JOIN `hotel` ht ON tr.HotelId =ht.id
-        //     WHERE 1 = 1 
-        //     AND ht.Address LIKE N'%" . $Location . "%'
-        //     AND tr.MaxQuantityMember=" . $QuantityMember . "
-        //     AND YEAR(r.TimeRecive) = YEAR('" . $TimeCheckIn . "')
-        //     AND MONTH(r.TimeRecive)=MONTH('" . $TimeCheckIn . "')
-        //     AND DAY(r.TimeRecive)=DAY('" . $TimeCheckIn . "')
-        //     LIMIT 10 ";
-        //     $hotels = DB::select($query);
-        // } else if ($Location != null && $TimeCheckIn != null && $QuantityDay != null) {
-        //     $query = "SELECT  ht.*
-        //     FROM   `room` r, `typeroom` tr
-        //     LEFT JOIN `hotel` ht ON tr.HotelId =ht.id
-        //     WHERE 1 = 1 
-        //     AND ht.Address LIKE N'%" . $Location . "%'
-        //     AND YEAR(r.TimeRecive) = YEAR('" . $TimeCheckIn . "')
-        //     AND MONTH(r.TimeRecive)=MONTH('" . $TimeCheckIn . "')
-        //     AND DAY(r.TimeRecive)=DAY('" . $TimeCheckIn . "')
-        //     AND DATEDIFF( R.TimeLeave,R.TimeRecive)=" . $QuantityDay . "
-        //     LIMIT 10 ";
-        //     $hotels = DB::select($query);
-        // } else if ($Location != null && $TimeCheckIn != null && $QuantityMember != null && $MaxRoomCount != null) {
-        //     $query = "SELECT  ht.*
-        //     FROM   `room` r, `typeroom` tr
-        //     LEFT JOIN `hotel` ht ON tr.HotelId =ht.id
-        //     WHERE 1 = 1 
-        //     AND ht.Address LIKE N'%" . $Location . "%'
-        //     AND tr.MaxQuantityMember=" . $QuantityMember . "
-        //     AND YEAR(r.TimeRecive) = YEAR('" . $TimeCheckIn . "')
-        //     AND MONTH(r.TimeRecive)=MONTH('" . $TimeCheckIn . "')
-        //     AND DAY(r.TimeRecive)=DAY('" . $TimeCheckIn . "')
-        //     AND DATEDIFF( R.TimeLeave,R.TimeRecive)=" . $QuantityDay . "
-        //     LIMIT 10 ";
-        //     $hotels = DB::select($query);
-        // }
-
-        // if ($hotels != null) {
-        //     foreach ($hotels as $hotel) {
-        //         $hotel->images[] = $this->IImagesHotelRepository->where('HotelId', $hotel->id, '=');
-        //         // if (empty((array) end($hotel->images))) {
-
-        //         //     unset($hotel->images[count($hotel->images) - 1]);
-        //         // }
-        //     }
-        // }
+        $query = "SELECT hotel.* FROM hotel
+        LEFT JOIN province ON hotel.Province_Id=province.id
+        LEFT JOIN typeroom ON hotel.id=typeroom.HotelId
+        LEFT JOIN room ON typeroom.id=room.TypeRoomId
+        WHERE 1=1
+        AND (province.DisplayName LIKE N'%" . $province . "%' OR province.DisplayName IS NULL OR province.DisplayName='')
+        AND typeroom.MaxQuantityMember>=" . $totalmember . "
+        AND room.TimeRecive>  DATE('" . $timereceive . "')
+        AND DATEDIFF(room.TimeLeave,room.TimeRecive)>" . $totalnight . "
+        GROUP BY hotel.id,hotel.Name,hotel.Address,hotel.Telephone,hotel.Description,hotel.LocationDetail
+,hotel.IsActive,hotel.TimeCheckIn,hotel.TimeCheckOut,hotel.created_at,hotel.updated_at,hotel.Type,hotel.StarRate,hotel.Province_Id";
+        $hotels = DB::select($query);
         return $hotels;
     }
-
-
-  
-
-
-
-   
 }

@@ -11,4 +11,7 @@ class ConvenientHotelRepository extends BaseRepository implements IConvenientHot
     {
         parent::__construct($model);
     }
+    public function getListByHotelId($id){
+        return $this->model::where('HotelId', '=', $id)->get();
+    }
 }

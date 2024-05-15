@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use App\Repositories\AccountUser\AccountUserRepository;
 use App\Repositories\AccountUser\IAccountUserRepository;
+use App\Repositories\AdministrativeRegions\AdministrativeRegionsRepository;
+use App\Repositories\AdministrativeRegions\IAdministrativeRegionsRepository;
+use App\Repositories\AdministrativeUnits\AdministrativeUnitsRepository;
+use App\Repositories\AdministrativeUnits\IAdministrativeUnitsRepository;
 use App\Repositories\BaseRepository;
 use App\Repositories\BookingHotel\BookingHotelRepository;
 use App\Repositories\BookingHotel\IBookingHotelRepository;
@@ -11,6 +15,8 @@ use App\Repositories\ConvenientHotel\ConvenientHotelRepository;
 use App\Repositories\ConvenientHotel\IConvenientHotelRepository;
 use App\Repositories\DiaDiemLanCan\DiaDiemLanCanRepository;
 use App\Repositories\DiaDiemLanCan\IDiaDiemLanCanRepository;
+use App\Repositories\Districts\DistrictsRepository;
+use App\Repositories\Districts\IDistrictsRepository;
 use App\Repositories\Guest\GuestRepository;
 use App\Repositories\Guest\IGuestRepository;
 use App\Repositories\Hotel\HotelRepository;
@@ -26,6 +32,8 @@ use App\Repositories\PolicyHotel\IPolicyHotelRepository;
 use App\Repositories\PolicyHotel\PolicyHotelRepository;
 use App\Repositories\Province\IProvinceRepository;
 use App\Repositories\Province\ProvinceRepository;
+use App\Repositories\Provinces\IProvincesRepository;
+use App\Repositories\Provinces\ProvincesRepository;
 use App\Repositories\RateHotel\IRateHotelRepository;
 use App\Repositories\RateHotel\RateHotelRepository;
 use App\Repositories\Room\IRoomRepository;
@@ -34,6 +42,8 @@ use App\Repositories\Staff\IStaffRepository;
 use App\Repositories\Staff\StaffRepository;
 use App\Repositories\TypeRoom\ITypeRoomRepository;
 use App\Repositories\TypeRoom\TypeRoomRepository;
+use App\Repositories\Wards\IWardsRepository;
+use App\Repositories\Wards\WardsRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -75,6 +85,13 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(IStaffRepository::class, StaffRepository::class);
 
         $this->app->bind(ITypeRoomRepository::class, TypeRoomRepository::class);
+
+        //-------------------------------------
+        $this->app->bind(IAdministrativeRegionsRepository::class, AdministrativeRegionsRepository::class);
+        $this->app->bind(IAdministrativeUnitsRepository::class, AdministrativeUnitsRepository::class);
+        $this->app->bind(IProvincesRepository::class, ProvincesRepository::class);
+        $this->app->bind(IDistrictsRepository::class, DistrictsRepository::class);
+        $this->app->bind(IWardsRepository::class, WardsRepository::class);
     }
 
     /**

@@ -6,4 +6,5 @@ use App\Repositories\IBaseRepository;
 
 interface IProvinceRepository extends IBaseRepository
 {
+    public function getAll();
 }

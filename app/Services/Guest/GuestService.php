@@ -13,4 +13,8 @@ class GuestService extends BaseService implements IGuestService
     {
         parent::__construct($repository);
     }
+    public function getOneByEmail(string $email)
+    {
+        return $this->repository->getOneByEmail($email);
+    }
 }
