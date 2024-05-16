@@ -86,25 +86,26 @@ class RoomController extends Controller
         //
     }
 
- public function insertRoom(Request $request) {
-         try{
+    public function insertRoom(Request $request)
+    {
+        try {
             $currentDateTime = date("YmdHis") . substr((string)microtime(true), 2, 6);
-            $randomIdRoom = "RO". $currentDateTime . rand(0, 9999);
-            $id= $randomIdRoom;
-            $TypeRoomId= $request->TypeRoomId;
-            $State= (empty($request->State)) ? 0 :  $request->State ;
-            $TimeRecive= (empty($request->TimeRecive)) ? null :  $request->TimeRecive ;
-            $TimeLeave= (empty($request->TimeLeave)) ? null :  $request->TimeLeave ;
-            $Gift=(empty($request->Gift)) ? 0 :  $request->Gift ;
-            $Discount=(empty($request->Discount)) ? 0 :  $request->Discount ;
-            $Breakfast= (empty($request->Breakfast)) ? 0 :  $request->Breakfast ;
-            $Wifi= (empty($request->Wifi)) ? 0 :  $request->Wifi ;
-            $NoSmoking= (empty($request->NoSmoking)) ? 0 :  $request->NoSmoking ;
-            $Cancel= (empty($request->Cancel)) ? 0 :  $request->Cancel ;
-            $ChangeTimeRecive= (empty($request->ChangeTimeRecive)) ? 0 :  $request->ChangeTimeRecive ;
-            $RoomName= (empty($request->RoomName)) ? 0 :  $request->RoomName  ;
-            $Hinh_Thuc_Thanh_Toan= (empty($request->Hinh_Thuc_Thanh_Toan)) ? 0:  $request->Hinh_Thuc_Thanh_Toan ;
-            $Bao_Gom_Thue_Va_Phi= (empty($request->Bao_Gom_Thue_Va_Phi)) ? 0 :  $request->Bao_Gom_Thue_Va_Phi ;
+            $randomIdRoom = "RO" . $currentDateTime . rand(0, 9999);
+            $id = $randomIdRoom;
+            $TypeRoomId = $request->TypeRoomId;
+            $State = (empty($request->State)) ? 0 :  $request->State;
+            $TimeRecive = (empty($request->TimeRecive)) ? null :  $request->TimeRecive;
+            $TimeLeave = (empty($request->TimeLeave)) ? null :  $request->TimeLeave;
+            $Gift = (empty($request->Gift)) ? 0 :  $request->Gift;
+            $Discount = (empty($request->Discount)) ? 0 :  $request->Discount;
+            $Breakfast = (empty($request->Breakfast)) ? 0 :  $request->Breakfast;
+            $Wifi = (empty($request->Wifi)) ? 0 :  $request->Wifi;
+            $NoSmoking = (empty($request->NoSmoking)) ? 0 :  $request->NoSmoking;
+            $Cancel = (empty($request->Cancel)) ? 0 :  $request->Cancel;
+            $ChangeTimeRecive = (empty($request->ChangeTimeRecive)) ? 0 :  $request->ChangeTimeRecive;
+            $RoomName = (empty($request->RoomName)) ? 0 :  $request->RoomName;
+            $Hinh_Thuc_Thanh_Toan = (empty($request->Hinh_Thuc_Thanh_Toan)) ? 0 :  $request->Hinh_Thuc_Thanh_Toan;
+            $Bao_Gom_Thue_Va_Phi = (empty($request->Bao_Gom_Thue_Va_Phi)) ? 0 :  $request->Bao_Gom_Thue_Va_Phi;
             $createAt =  date("YmdHis");
             $sql = "INSERT INTO room(id, TypeRoomId, State, TimeRecive, TimeLeave, Gift, Discount, Breakfast, Wifi, NoSmoking, Cancel, ChangeTimeRecive, RoomName, Hinh_Thuc_Thanh_Toan, Bao_Gom_Thue_Va_Phi, created_at)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?)";
@@ -112,7 +113,7 @@ class RoomController extends Controller
             DB::insert($sql, [
                 $id,
                 $TypeRoomId,
-                $State ,
+                $State,
                 $TimeRecive,
                 $TimeLeave,
                 $Gift,
@@ -130,16 +131,15 @@ class RoomController extends Controller
             return response()->json([
                 'id' => $id,
             ], 200);
-         } 
-         catch (Exception $e) {
-            return response()->json(['message' => $e],500);
-         }
+        } catch (Exception $e) {
+            return response()->json(['message' => $e], 500);
+        }
     }
 
-    public function selectRoom (Request $request) {
-        try 
-        {
-           $id_hotel = $request->id;
+    public function selectRoom(Request $request)
+    {
+        try {
+            $id_hotel = $request->id;
 
             $sql = "SELECT typeroom.Name AS type_name, typeroom.Price AS type_price, hotel.Name AS hotel_name, room.* 
                     FROM typeroom
@@ -149,39 +149,10 @@ class RoomController extends Controller
             $data = DB::select($sql);
 
             return response()->json(
-                $data
-            , 200);
-
-
-        }
-        catch(Exception $e)
-        {
-            return response()->json([
-                'data' => $e,
-            ], 404);
-        }
-    }
-
-    public function selectTypeRoom (Request $request) {
-        try 
-        {
-            $id_hotel = $request->id;
-
-            $sql = "SELECT typeroom.*,typeroom.Name as RoomName , COUNT(room.id) AS total_rooms, SUM(room.State = 0) AS state_room
-                        FROM typeroom 
-                        LEFT JOIN room ON room.TypeRoomId = typeroom.id
-                        WHERE typeroom.HotelId = '$id_hotel'
-                        GROUP BY typeroom.id, typeroom.HotelId, typeroom.Name, typeroom.ConvenientRoom, typeroom.ConvenientBathRoom, typeroom.FloorArea, typeroom.MaxQuantityMember, typeroom.Price, typeroom.Voi_Tam_Dung, typeroom.Ban_Cong_San_Hien, typeroom.Khu_Vuc_Cho, typeroom.May_Lanh, typeroom.Nuoc_Nong, typeroom.Bon_Tam,typeroom.created_at,typeroom.updated_at,typeroom.TenLoaiGiuong,typeroom.SoLuongGiuong,typeroom.Lo_Vi_Song,typeroom.SoLuongGiuong,typeroom.Lo_Vi_Song,typeroom.Tu_Lanh,typeroom.May_Giat,typeroom.No_Moking";
-            $data = DB::select($sql);
-
-            return response()->json([
                 $data,
-            ], 200);
-
-
-        }
-        catch(Exception $e)
-        {
+                200
+            );
+        } catch (Exception $e) {
             return response()->json([
                 'data' => $e,
             ], 404);
@@ -189,22 +160,25 @@ class RoomController extends Controller
     }
 
 
-    public function updateRoom (Request $request) {
+
+
+    public function updateRoom(Request $request)
+    {
         try {
             $currentDateTime = date("YmdHis");
 
             $id = $request->id;
             $TypeRoomId = $request->TypeRoomId;
             $State = $request->State;
-            $TimeRecive= (empty($request->TimeRecive)) ? null :  $request->TimeRecive ;
-            $TimeLeave= (empty($request->TimeLeave)) ? null :  $request->TimeLeave ;
+            $TimeRecive = (empty($request->TimeRecive)) ? null :  $request->TimeRecive;
+            $TimeLeave = (empty($request->TimeLeave)) ? null :  $request->TimeLeave;
             $Gift = $request->Gift;
             $Discount = $request->Discount;
             $Breakfast = $request->Breakfast;
             $Wifi = $request->Wifi;
             $NoSmoking = $request->NoSmoking;
             $Cancel = $request->Cancel;
-            $ChangeTimeRecive = (empty($request->ChangeTimeRecive)) ? 0 :  $request->ChangeTimeRecive ;
+            $ChangeTimeRecive = (empty($request->ChangeTimeRecive)) ? 0 :  $request->ChangeTimeRecive;
             $updated_at = date("YmdHis");
             $Hinh_Thuc_Thanh_Toan = $request->Hinh_Thuc_Thanh_Toan;
             $RoomName = $request->RoomName;
@@ -228,36 +202,37 @@ class RoomController extends Controller
                     Bao_Gom_Thue_Va_Phi=? 
                     WHERE id = ?";
 
-        $data = DB::update($sql, [
-            $TypeRoomId,
-            $State,
-            $TimeRecive,
-            $TimeLeave,
-            $Gift,
-            $Discount,
-            $Breakfast,
-            $Wifi,
-            $NoSmoking,
-            $Cancel,
-            $ChangeTimeRecive,
-            $updated_at,
-            $RoomName,
-            $Hinh_Thuc_Thanh_Toan,
-            $Bao_Gom_Thue_Va_Phi,
-            $id
-        ]);
+            $data = DB::update($sql, [
+                $TypeRoomId,
+                $State,
+                $TimeRecive,
+                $TimeLeave,
+                $Gift,
+                $Discount,
+                $Breakfast,
+                $Wifi,
+                $NoSmoking,
+                $Cancel,
+                $ChangeTimeRecive,
+                $updated_at,
+                $RoomName,
+                $Hinh_Thuc_Thanh_Toan,
+                $Bao_Gom_Thue_Va_Phi,
+                $id
+            ]);
 
 
-            if($data) {
+            if ($data) {
                 return response()->json("Update thành công", 200);
-            }else {
-                return response()->json("Update thất bại",201);
-            }   
-        }
-        catch(Exception $e) {
-            return response()->json([ $e],
-               
-            500);
+            } else {
+                return response()->json("Update thất bại", 201);
+            }
+        } catch (Exception $e) {
+            return response()->json(
+                [$e],
+
+                500
+            );
         }
     }
 }

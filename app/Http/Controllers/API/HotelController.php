@@ -39,7 +39,7 @@ class HotelController extends Controller
         return response()->json(['hotels' => $hotels]);
     }
 
-    public function insert_hotel(Request $request)
+    public function insertHotel(Request $request)
     {
         try {
             $currentDateTime = date("YmdHis");
@@ -86,7 +86,7 @@ class HotelController extends Controller
         }
     }
 
-    public function insert_typeroom(Request $request)
+    public function insertTyperoom(Request $request)
     {
         //dd($request->file('file'));
         //dd($request->all());
@@ -225,6 +225,97 @@ class HotelController extends Controller
             }
         } catch (Exception $e) {
             return response()->json(['message' => $e], 500);
+        }
+    }
+
+
+
+    public function selectTypeRoom(Request $request)
+    {
+        try {
+            $id_hotel = $request->id;
+
+            $sql = "SELECT typeroom.*,typeroom.Name as RoomName , COUNT(room.id) AS total_rooms, SUM(room.State = 0) AS state_room
+                        FROM typeroom 
+                        LEFT JOIN room ON room.TypeRoomId = typeroom.id
+                        WHERE typeroom.HotelId = '$id_hotel'
+                        GROUP BY typeroom.id, typeroom.HotelId, typeroom.Name, typeroom.ConvenientRoom, typeroom.ConvenientBathRoom, typeroom.FloorArea, typeroom.MaxQuantityMember, typeroom.Price, typeroom.Voi_Tam_Dung, typeroom.Ban_Cong_San_Hien, typeroom.Khu_Vuc_Cho, typeroom.May_Lanh, typeroom.Nuoc_Nong, typeroom.Bon_Tam,typeroom.created_at,typeroom.updated_at,typeroom.TenLoaiGiuong,typeroom.SoLuongGiuong,typeroom.Lo_Vi_Song,typeroom.SoLuongGiuong,typeroom.Lo_Vi_Song,typeroom.Tu_Lanh,typeroom.May_Giat,typeroom.No_Moking";
+            $data = DB::select($sql);
+
+            return response()->json([
+                $data,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'data' => $e,
+            ], 404);
+        }
+    }
+    public function updateTypeRoom(Request $request)
+    {
+
+        try {
+            $id = $request->input('id');
+            $HotelId = $request->HotelId;
+            $Name = $request->Name;
+            $ConvenientRoom = (empty($request->ConvenientRoom)) ? "" :  $request->ConvenientRoom;
+            $ConvenientBathRoom = (empty($request->ConvenientBathRoom)) ? "" :  $request->ConvenientBathRoom;
+            $FloorArea = (empty($request->FloorArea)) ? 0 :  $request->FloorArea;
+            $MaxQuantityMember = (empty($request->MaxQuantityMember)) ? 0 :  $request->MaxQuantityMember;
+            $Price = $request->Price;
+            $Voi_Tam_Dung = (empty($request->Voi_Tam_Dung)) ? 0 :  $request->Voi_Tam_Dung;
+            $Ban_Cong_San_Hien = (empty($request->Ban_Cong_San_Hien)) ? 0 :  $request->Ban_Cong_San_Hien;
+            $Khu_Vuc_Cho = (empty($request->Khu_Vuc_Cho)) ? 0 :  $request->Khu_Vuc_Cho;
+            $May_Lanh = (empty($request->May_Lanh)) ? 0 :  $request->May_Lanh;
+            $Nuoc_Nong = (empty($request->Nuoc_Nong)) ? 0 :  $request->Nuoc_Nong;
+            $Bon_Tam = (empty($request->Bon_Tam)) ? 0 :  $request->Bon_Tam;
+            $TenLoaiGiuong = (empty($request->TenLoaiGiuong)) ? 0 :  $request->TenLoaiGiuong;
+            $SoLuongGiuong = (empty($request->SoLuongGiuong)) ? 0 :  $request->SoLuongGiuong;
+            $Lo_Vi_Song = (empty($request->Lo_Vi_Song)) ? 0 :  $request->Lo_Vi_Song;
+            $Tu_Lanh = (empty($request->Tu_Lanh)) ? 0 :  $request->Tu_Lanh;
+            $May_Giat = (empty($request->May_Giat)) ? 0 :  $request->May_Giat;
+            $No_Moking = (empty($request->No_Moking)) ? 0 :  $request->No_Moking;
+            $created_at = (empty($request->created_at)) ? null :  $request->created_at;
+            $updated_at = date("YmdHis");
+
+            $sql = "UPDATE typeroom SET HotelId=?,Name=?,ConvenientRoom=?,ConvenientBathRoom=?,FloorArea=?,MaxQuantityMember=?,Price=?,Voi_Tam_Dung=?,Ban_Cong_San_Hien=?,Khu_Vuc_Cho=?,May_Lanh=?,Nuoc_Nong=?,Bon_Tam=?,created_at=?,updated_at=?,TenLoaiGiuong=?,SoLuongGiuong=?,Lo_Vi_Song=?,Tu_Lanh=?,May_Giat=?,No_Moking=? WHERE id = ?";
+
+
+            $res = DB::update(
+                $sql,
+                [
+                    $HotelId,
+                    $Name,
+                    $ConvenientRoom,
+                    $ConvenientBathRoom,
+                    $FloorArea,
+                    $MaxQuantityMember,
+                    $Price,
+                    $Voi_Tam_Dung,
+                    $Ban_Cong_San_Hien,
+                    $Khu_Vuc_Cho,
+                    $May_Lanh,
+                    $Nuoc_Nong,
+                    $Bon_Tam,
+                    $created_at,
+                    $updated_at,
+                    $TenLoaiGiuong,
+                    $SoLuongGiuong,
+                    $Lo_Vi_Song,
+                    $Tu_Lanh,
+                    $May_Giat,
+                    $No_Moking,
+                    $id,
+                ]
+            );
+
+            if ($res > 0) {
+                return response()->json(true, 200);
+            } else {
+                return response()->json(false, 200);
+            }
+        } catch (Exception $th) {
+            return response()->json($th, 500);
         }
     }
 

@@ -34,14 +34,12 @@ Route::prefix('hotel')->group(function () {
 
 
 
-    ### Vinh
     Route::get('/hotels-by-province', [HotelController::class, 'getHotelsByProvince']);
 
     Route::get('/hotels', [HotelController::class, 'getAllHotels']);
 
-    Route::post('/insert-hotel', [HotelController::class, 'insert_hotel']);
+    Route::post('/insert-hotel', [HotelController::class, 'insertHotel']);
 
-    Route::post('/insert-typeroom', [HotelController::class, 'insert_typeroom']);
 
     Route::get('/get-hotel', [HotelController::class, 'getHotel']);
 });
@@ -51,7 +49,11 @@ Route::prefix('hotel')->group(function () {
 Route::post('/room/insert-room', [RoomController::class, 'insertRoom']);
 Route::get('/room/select-room', [RoomController::class, 'selectRoom']);
 Route::put('/room/update-room', [RoomController::class, 'updateRoom']);
-Route::get('/room/select-typeroom', [RoomController::class, 'selectTypeRoom']);
+
+//TypeRoom
+Route::post('/room/insert-typeroom', [HotelController::class, 'insertTyperoom']);
+Route::get('/room/select-typeroom', [HotelController::class, 'selectTypeRoom']);
+Route::put('/room/update-typeroom', [HotelController::class, 'updateTypeRoom']);
 Route::get('/image/select-image-by-typeroom', [ImageController::class, 'selectImageByIdTypeRoom']);
 
 //Authen and info
