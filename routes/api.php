@@ -7,13 +7,18 @@ use App\Http\Controllers\API\HotelController;
 use App\Http\Controllers\API\ImagesHotel_Controller;
 use App\Http\Controllers\API\Province_Controller;
 use App\Http\Controllers\API\RoomController;
+use App\Http\Controllers\API\ImageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+
 use App\Http\Controllers\API\Districts_Controller;
 use App\Http\Controllers\API\Provinces_Controller;
 use App\Http\Controllers\API\Wards_Controller;
+
+use App\Http\Controllers\API\Staff_Controller;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -38,12 +43,29 @@ Route::prefix('hotel')->group(function () {
 
 
 
-    ### Vinh
     Route::get('/hotels-by-province', [HotelController::class, 'getHotelsByProvince']);
 
     Route::get('/hotels', [HotelController::class, 'getAllHotels']);
+
+    Route::post('/insert-hotel', [HotelController::class, 'insertHotel']);
+
+
+    Route::get('/get-hotel', [HotelController::class, 'getHotel']);
 });
 
+//Room
+
+Route::post('/room/insert-room', [RoomController::class, 'insertRoom']);
+Route::get('/room/select-room', [RoomController::class, 'selectRoom']);
+Route::put('/room/update-room', [RoomController::class, 'updateRoom']);
+
+//TypeRoom
+Route::post('/room/insert-typeroom', [HotelController::class, 'insertTyperoom']);
+Route::get('/room/select-typeroom', [HotelController::class, 'selectTypeRoom']);
+Route::put('/room/update-typeroom', [HotelController::class, 'updateTypeRoom']);
+Route::get('/image/select-image-by-typeroom', [ImageController::class, 'selectImageByIdTypeRoom']);
+Route::post('/upload-multiple-image', [ImageController::class, 'uploadMultipleImageTypeRoom']);
+Route::delete('/delete-image-typeroom', [ImageController::class, 'deleteImageByIdTypeRoom']);
 
 //Authen and info
 Route::get('/check-email-exists', [AuthController::class, 'checkEmailExists']);
@@ -60,6 +82,13 @@ Route::get('/get-user-info', [AuthController::class, 'getUserInfo']);
 Route::post('/login-administrator', [AuthController::class, 'loginAdminHotel']);
 
 
+//Upload
+Route::post('/upload-image', [ImageController::class, 'upload']);
+
+
+//?? Staff
+
+Route::post('/staff/insert', [Staff_Controller::class, 'insertStallToHotell']);
 
 
 // dang ky route ImagesHotel
@@ -67,6 +96,8 @@ Route::prefix('image-hotel')->group(function () {
     Route::get('get-all', [ImagesHotel_Controller::class, 'index'])->name('imagesHotel');
     Route::get('get-avarta-by-hotel-id', [ImagesHotel_Controller::class, 'getAvartaByHotelId'])
         ->name('imagesHotel.getAvartaByHotelId');
+
+
 
     //param: id
     Route::get('get-one-by-id', [ImagesHotel_Controller::class, 'show'])->name('imagesHotel.getOneById');
