@@ -13,4 +13,8 @@ class TypeRoomService extends BaseService implements ITypeRoomService
     {
         parent::__construct($repository);
     }
+    public function getListByHotelId($id)
+    {
+        return $this->repository->getListByHotelId($id);
+    }
 }

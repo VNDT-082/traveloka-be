@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+
 use Illuminate\Http\UploadedFile;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Hotel\MyHotelService;
 use App\Models\Hotel_Model;
+
 use DateTime;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
+
 
 class HotelController extends Controller
 {
@@ -29,7 +33,6 @@ class HotelController extends Controller
 
         return response()->json(['hotels' => $hotels]);
     }
-
     public function getHotelsByProvince(Request $request)
     {
         $provinceName = $request->input('province');

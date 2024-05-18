@@ -6,4 +6,5 @@ use App\Services\IBaseService;
 
 interface IGuestService extends IBaseService
 {
+    public function getOneByEmail(string $email);
 }

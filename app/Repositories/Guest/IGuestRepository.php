@@ -6,4 +6,5 @@ use App\Repositories\IBaseRepository;
 
 interface IGuestRepository extends IBaseRepository
 {
+    public function getOneByEmail(string $email);
 }

@@ -12,4 +12,8 @@ class ProvinceService extends BaseService implements IProvinceService
     {
         parent::__construct($repository);
     }
+    public function getAll()
+    {
+        return $this->repository->getAll();
+    }
 }

@@ -11,4 +11,8 @@ class RateHotelRepository extends BaseRepository implements IRateHotelRepository
     {
         parent::__construct($model);
     }
+    public function getListByHotelId($id)
+    {
+        return $this->model::where('HotelId', '=', $id)->get();
+    }
 }

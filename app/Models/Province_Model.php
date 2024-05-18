@@ -11,8 +11,8 @@ class Province_Model extends Model
     protected $table = 'province';
     protected $primary = 'id';
     public $incrementing = false;
-    public function hotel()
+    public function hotels()
     {
-        return $this->hasMany(Hotel_Model::class, 'HotelId', 'id');
+        return $this->hasMany(Hotel_Model::class, 'Province_Id', 'id');
     }
 }

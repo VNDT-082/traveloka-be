@@ -11,4 +11,8 @@ class TypeRoomRepository extends BaseRepository implements ITypeRoomRepository
     {
         parent::__construct($model);
     }
+    public function getListByHotelId($id)
+    {
+        return $this->model::where('HotelId', '=', $id)->get();
+    }
 }
