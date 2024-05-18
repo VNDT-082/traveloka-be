@@ -55,6 +55,8 @@ Route::post('/room/insert-typeroom', [HotelController::class, 'insertTyperoom'])
 Route::get('/room/select-typeroom', [HotelController::class, 'selectTypeRoom']);
 Route::put('/room/update-typeroom', [HotelController::class, 'updateTypeRoom']);
 Route::get('/image/select-image-by-typeroom', [ImageController::class, 'selectImageByIdTypeRoom']);
+Route::post('/upload-multiple-image', [ImageController::class, 'uploadMultipleImageTypeRoom']);
+Route::delete('/delete-image-typeroom', [ImageController::class, 'deleteImageByIdTypeRoom']);
 
 //Authen and info
 Route::get('/check-email-exists', [AuthController::class, 'checkEmailExists']);
@@ -72,7 +74,7 @@ Route::post('/login-administrator', [AuthController::class, 'loginAdminHotel']);
 
 
 //Upload
-Route::post('/upload-image', [ImagesHotel_Controller::class, 'upload']);
+Route::post('/upload-image', [ImageController::class, 'upload']);
 
 
 //?? Staff

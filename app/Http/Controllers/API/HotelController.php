@@ -88,26 +88,6 @@ class HotelController extends Controller
 
     public function insertTyperoom(Request $request)
     {
-        //dd($request->file('file'));
-        //dd($request->all());
-
-
-        // $validate = Validator::make($request->all(), [
-        //     'file' => 'required|file|mimes:jpg,png,pdf|max:2048',
-        // ]);
-        // // $request->validate([
-        // //     'file' => 'required|file|mimes:jpg,png,pdf|max:2048',
-        // // ]);
-        // if ($validate->fails()) {
-        //     // return response()->json($request->file('file'), 500);
-        //     return response()->json([
-        //         'message' => $validate->errors()
-        //     ], 400);
-        // };
-
-
-        //return response()->json(['message' => $request->all()], 500);
-
         try {
             $currentDateTime = date("YmdHis");
             $randomIdTyperoom = "TR" . $currentDateTime;
@@ -228,8 +208,6 @@ class HotelController extends Controller
         }
     }
 
-
-
     public function selectTypeRoom(Request $request)
     {
         try {
@@ -317,11 +295,6 @@ class HotelController extends Controller
         } catch (Exception $th) {
             return response()->json($th, 500);
         }
-    }
-
-    public function upload(UploadedFile $request)
-    {
-        return response()->json($request->all());
     }
 
     public function getHotel(Request $request)
