@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\ImagesHotel_Model;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\URL;
 
 class ImageController extends Controller
@@ -27,7 +28,6 @@ class ImageController extends Controller
             $filename = time() . '_' . $image->getClientOriginalName();
             $image->storeAs('public/images', $filename);
 
-            // Lưu thông tin hình ảnh vào cơ sở dữ liệu
             $id_hotel = $request->input('id_hotel');
             $id_typeroom = $request->input('id_typeroom');
             $region = $request->input('region');
@@ -153,6 +153,41 @@ class ImageController extends Controller
             }
         } catch (Exception $e) {
             return response($e, 500);
+        }
+    }
+
+
+    public function updateCoverImage(Request $request)
+    {
+        $file = $request->file('file');
+        $oldNameFile = $request->nameFileOld;
+        $idImage = $request->idImage;
+
+        if ($file instanceof UploadedFile && $file->isValid() && strpos($file->getMimeType(), 'image/') === 0) {
+            // Lưu file vào thư mục storage của server
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/images', $filename);
+            $storedPath = $file->storeAs('images', $filename);
+
+            $baseUrl = URL::to('/');
+            $url = Storage::url('public/images/' . $filename);
+            $fullUrl = $baseUrl . $url;
+
+            if ($storedPath) {
+
+                $filePath = storage_path('app/public/images/' . $oldNameFile);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+
+                DB::table('imageshotel')->where('id', $idImage)->update(['FileName' => $fullUrl]);
+
+                return response()->json(true, 200);
+            } else {
+                return response()->json(false, 500);
+            }
+        } else {
+            return response()->json(false, 400);
         }
     }
 }

@@ -39,7 +39,7 @@ class HotelController extends Controller
 
         $hotels = $this->hotelService->getHotelsByProvince($provinceName);
 
-        return response()->json(['hotels' => $hotels]);
+        return response()->json($hotels);
     }
 
     public function insertHotel(Request $request)
@@ -306,25 +306,128 @@ class HotelController extends Controller
             $id = $request->id;
 
             $sql = "SELECT 
-                        hotel.*, 
-                        COUNT(typeroom.id) AS number_of_room_types,
-                        SUM(CASE WHEN room.State = 0 THEN 1 ELSE 0 END) AS total_rooms_state_0
-                    FROM 
-                        hotel
-                    LEFT JOIN 
-                        typeroom ON hotel.id = typeroom.HotelId
-                    LEFT JOIN 
-                        room ON typeroom.id = room.TypeRoomId
-                    WHERE 
-                        hotel.id = '$id'
-                    GROUP BY 
-                        hotel.id, hotel.Name, hotel.Address, hotel.Telephone, hotel.Description, hotel.LocationDetail, hotel.IsActive, hotel.TimeCheckIn, hotel.TimeCheckOut,hotel.created_at, hotel.updated_at, hotel.Type, hotel.StarRate, hotel.Province_Id ;
-                    ";
+    hotel.*, 
+    COUNT(typeroom.id) AS number_of_room_types,
+    SUM(CASE WHEN room.State = 0 THEN 1 ELSE 0 END) AS total_rooms_state_0,
+    imageshotel.FileName AS hotel_image,
+    imageshotel.id AS idImage
+FROM 
+    hotel
+LEFT JOIN 
+    typeroom ON hotel.id = typeroom.HotelId
+LEFT JOIN 
+    room ON typeroom.id = room.TypeRoomId
+LEFT JOIN
+    imageshotel ON hotel.id = imageshotel.HotelId
+    AND imageshotel.TypeRoom = 'None;Ảnh bìa'
+WHERE 
+    hotel.id = '$id'
+GROUP BY 
+    hotel.id, hotel.Name, hotel.Address, hotel.Telephone, hotel.Description, hotel.LocationDetail, hotel.IsActive, hotel.TimeCheckIn, hotel.TimeCheckOut, hotel.created_at, hotel.updated_at, hotel.Type, hotel.StarRate, hotel.Province_Id, imageshotel.FileName,imageshotel.id;
+                ";
 
             $hotel = DB::select($sql);
             return response()->json($hotel);
         } catch (Exception $e) {
             return response()->json(['message' => $e], 500);
         }
+    }
+
+    public function updateHotel(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $Name = $request->Name;
+            $Address = $request->Address;
+            $Telephone = $request->Telephone;
+            $Description = (empty($request->Description)) ? "" :  $request->Description;
+            $LocationDetail = (empty($request->LocationDetail)) ? "" :  $request->LocationDetail;
+            $IsActive = (empty($request->IsActive)) ? 0 :  $request->IsActive;
+            $TimeCheckIn = $request->TimeCheckIn;
+            $TimeCheckOut = $request->TimeCheckOut;
+            $Type = (empty($request->Type)) ? "" :  $request->Type;
+            $StarRate = (empty($request->StarRate)) ? 0 :  $request->StarRate;
+            $update_at = date("YmdHis");
+
+            $file = $request->file('file');
+            $oldNameFile = $request->filename;
+            $idImage = $request->idImage;
+
+
+
+
+            $sql = "UPDATE hotel SET Name='$Name',Address='$Address',Telephone='$Telephone',Description='$Description',LocationDetail='$LocationDetail',IsActive='$IsActive',TimeCheckIn='$TimeCheckIn',TimeCheckOut='$TimeCheckOut',updated_at='$update_at',Type='$Type',StarRate='$StarRate' WHERE id ='$id'";
+
+            $hotel = DB::update($sql);
+
+            if ($hotel > 0) {
+                return response()->json(true, 200);
+            } else {
+                response()->json(false, 200);
+            }
+        } catch (Exception $e) {
+            return response()->json(['message' => $e], 500);
+        }
+    }
+
+    public function getListProvices()
+    {
+        try {
+            $sql = 'SELECT * FROM provinces';
+            $res = DB::select($sql);
+            if ($res) {
+                return response()->json($res, 200);
+            } else {
+                return response()->json([], 200);
+            }
+        } catch (Exception $e) {
+            return response()->json($e, 500);
+        }
+    }
+
+    public function getListDistrict(Request $request)
+    {
+        try {
+            $id = $request->input('id');
+            $sql = "SELECT * FROM districts WHERE districts.province_code = $id";
+            $res = DB::select($sql);
+            if ($res) {
+                return response()->json($res, 200);
+            } else {
+                return response()->json([], 200);
+            }
+        } catch (Exception $e) {
+            return response()->json($e, 500);
+        }
+    }
+
+    public function getRevenue(Request $request)
+    {
+        $idHotel = $request->idHotel;
+        $type = $request->type; // week, month, year
+
+        $query = DB::table('booking')
+            ->join('room', 'booking.id_room', '=', 'room.id')
+            ->join('hotel', 'room.id_hotel', '=', 'hotel.id')
+            ->select(DB::raw('SUM(booking.price) as revenue'));
+
+        if ($idHotel) {
+            $query->where('hotel.id', $idHotel);
+        }
+
+        if ($type === 'week') {
+            $query->select(DB::raw('YEAR(booking.updated_at) as year, WEEK(booking.updated_at) as week'))
+                ->groupBy(DB::raw('YEAR(booking.updated_at), WEEK(booking.updated_at)'));
+        } elseif ($type === 'month') {
+            $query->select(DB::raw('YEAR(booking.updated_at) as year, MONTH(booking.updated_at) as month'))
+                ->groupBy(DB::raw('YEAR(booking.updated_at), MONTH(booking.updated_at)'));
+        } elseif ($type === 'year') {
+            $query->select(DB::raw('YEAR(booking.updated_at) as year'))
+                ->groupBy(DB::raw('YEAR(booking.updated_at)'));
+        }
+
+        $revenue = $query->get();
+
+        return response()->json($revenue, 200);
     }
 }

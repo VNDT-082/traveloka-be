@@ -18,7 +18,7 @@ use App\Http\Controllers\API\Provinces_Controller;
 use App\Http\Controllers\API\Wards_Controller;
 
 use App\Http\Controllers\API\Staff_Controller;
-
+use App\Http\Controllers\API\UserController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -40,18 +40,23 @@ Route::prefix('hotel')->group(function () {
     //param: id
     Route::get('get-list-by-province-id', [Hotel_Controller::class, 'getHotelsByProvinceId'])->name('hotel.getHotelsByProvinceId');
 
-
-
-
     Route::get('/hotels-by-province', [HotelController::class, 'getHotelsByProvince']);
 
     Route::get('/hotels', [HotelController::class, 'getAllHotels']);
 
     Route::post('/insert-hotel', [HotelController::class, 'insertHotel']);
 
-
     Route::get('/get-hotel', [HotelController::class, 'getHotel']);
+
+    Route::put('/update-hotel', [HotelController::class, 'updateHotel']);
 });
+
+
+//Address
+
+Route::get('/address/provices', [HotelController::class, 'getListProvices']);
+Route::get('/address/provices/district', [HotelController::class, 'getListDistrict']);
+
 
 //Room
 
@@ -80,10 +85,12 @@ Route::get('/get-user-info', [AuthController::class, 'getUserInfo']);
 
 // Administrator Hotel Login
 Route::post('/login-administrator', [AuthController::class, 'loginAdminHotel']);
+Route::get('/information-administrator', [UserController::class, 'getInfoAdmin']);
 
 
 //Upload
 Route::post('/upload-image', [ImageController::class, 'upload']);
+Route::post('/update-cover-image-hotel', [ImageController::class, 'updateCoverImage']);
 
 
 //?? Staff
