@@ -76,7 +76,7 @@ class AuthController extends Controller
             ]);
 
             if ($request->Type === 'Staff') {
-                $sql = "INSERT INTO Staff (id, UserAccountId, Email, Telephone, Name, CCCD, Sex, Type) VALUES (?,?, ?, ?, ?, ?,?,?)";
+                $sql = "INSERT INTO staff (id, UserAccountId, Email, Telephone, Name, CCCD, Sex, Type) VALUES (?,?, ?, ?, ?, ?,?,?)";
                 DB::insert($sql, [
                     $randomIdStaff,
                     $randomIdAccount,
@@ -91,8 +91,7 @@ class AuthController extends Controller
 
             return response()->json(['message' => 'User registered successfully'], 200);
         } catch (Exception $e) {
-            Log::error('Error while registering user: ' . $e->getMessage());
-            return response()->json(['message' => 'Failed to register user' . $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 

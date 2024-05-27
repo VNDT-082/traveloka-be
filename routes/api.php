@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\BookingHotel_Controller;
 use App\Http\Controllers\API\DiaDiemLanCan_Controller;
 use App\Http\Controllers\API\Guest_Controller;
 use App\Http\Controllers\API\Hotel_Controller;
@@ -18,7 +19,6 @@ use App\Http\Controllers\API\Provinces_Controller;
 use App\Http\Controllers\API\Wards_Controller;
 
 use App\Http\Controllers\API\Staff_Controller;
-use App\Http\Controllers\API\UserController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -49,7 +49,14 @@ Route::prefix('hotel')->group(function () {
     Route::get('/get-hotel', [HotelController::class, 'getHotel']);
 
     Route::put('/update-hotel', [HotelController::class, 'updateHotel']);
+
+    Route::get('/get-renvenu', [HotelController::class, 'getRevenue']);
 });
+//Booking
+
+Route::get('/all-booking', [BookingHotel_Controller::class, 'getBookingsByHotelId']);
+
+
 
 
 //Address
@@ -85,7 +92,7 @@ Route::get('/get-user-info', [AuthController::class, 'getUserInfo']);
 
 // Administrator Hotel Login
 Route::post('/login-administrator', [AuthController::class, 'loginAdminHotel']);
-Route::get('/information-administrator', [UserController::class, 'getInfoAdmin']);
+// Route::get('/information-administrator', [UserController::class, 'getInfoAdmin']);
 
 
 //Upload
