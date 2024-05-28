@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\BookingHotel_Model;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class BookingHotel_Controller extends Controller
 {
@@ -73,7 +76,15 @@ class BookingHotel_Controller extends Controller
                 'b.TimeRecive AS check_in_date',
                 'b.TimeLeave AS check_out_date',
                 'b.CreateDate AS created_at',
-                DB::raw('CASE WHEN b.State = 1 THEN "Đã đặt" WHEN b.State = 0 THEN "Đã hủy" ELSE "Đã thanh toán" END AS booking_status'),
+                DB::raw('CASE 
+                    WHEN b.State = 0 THEN "Chờ xác nhận" 
+                    WHEN b.State = 1 THEN "Đã xác nhận" 
+                    WHEN b.State = 3 THEN "Đang ở" 
+                    WHEN b.State = 4 THEN "Checked out"
+                    WHEN b.State = 5 THEN "Yêu cầu hủy" 
+                    WHEN b.State = 6 THEN "Đã hủy" 
+                    ELSE "Đã thanh toán"
+                    END AS booking_status '),
                 DB::raw('IFNULL((SELECT member_count FROM (' . $subquery->toSql() . ') AS subquery WHERE subquery.BookHotelId = b.id), 0) AS member_count')
             ])
             ->mergeBindings($subquery) // Bắt buộc ràng buộc
@@ -100,5 +111,38 @@ class BookingHotel_Controller extends Controller
         }
 
         return response()->json($query, 200);
+    }
+
+    public function updateState(Request $request)
+    {
+
+
+
+
+        // Find the booking
+        $booking = DB::table('bookinghotel')->where('id', $request->id_booking)->first();
+
+        if (!$booking) {
+            return response()->json(['error' => 'Booking not found'], 404);
+        }
+
+        $user_comfrim = DB::table('staff')->where('UserAccountId', $request->confirm_by)->first();
+
+        // Update the state
+        DB::table('bookinghotel')
+            ->where('id', $request->id_booking)
+            ->update([
+                'State' => $request->input('status'),
+                'ConfirmBy' => $user_comfrim->id,
+                'updated_at' => Carbon::now(),
+                'ConfirmAt' => Carbon::now() // Use Carbon to get the current date and time
+            ]);
+
+
+        return response()->json([
+            'message' => 'Booking state updated successfully',
+            'id_booking' => $request->id_booking,
+            'status' => $request->status
+        ], 200);
     }
 }

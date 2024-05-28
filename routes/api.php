@@ -55,6 +55,7 @@ Route::prefix('hotel')->group(function () {
 //Booking
 
 Route::get('/all-booking', [BookingHotel_Controller::class, 'getBookingsByHotelId']);
+Route::put('/update-state-booking', [BookingHotel_Controller::class, 'updateState']);
 
 
 
