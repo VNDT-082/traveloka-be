@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Hotel\MyHotelService;
 use App\Models\Hotel_Model;
-
+use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -413,6 +413,19 @@ class HotelController extends Controller
         $previousDate = date('Y-m-d', strtotime('-1 day'));
         $currentDate = date('Y-m-d');
 
+        $currentWeekStart = Carbon::now()->startOfWeek()->toDateString();
+        $currentWeekEnd = Carbon::now()->endOfWeek()->toDateString();
+
+        $previousWeekStart = Carbon::now()->subWeek()->startOfWeek()->toDateString();
+        $previousWeekEnd = Carbon::now()->subWeek()->endOfWeek()->toDateString();
+
+        $currentMonthStart = Carbon::now()->startOfMonth()->toDateTimeString();
+        $currentMonthEnd = Carbon::now()->endOfMonth()->toDateTimeString();
+
+        $previousMonthStart = Carbon::now()->subMonth()->startOfMonth()->toDateString();
+        $previousMonthEnd = Carbon::now()->subMonth()->endOfMonth()->toDateString();
+
+
         $startOfWeek = date('Y-m-d', strtotime('monday this week'));
         $startOfMonth = date('Y-m-01');
 
@@ -427,17 +440,24 @@ class HotelController extends Controller
         }
 
         $queryToday = clone $query;
-        $revenueToday = $queryToday->whereDate('bookinghotel.updated_at', $currentDate)->first()->revenue;
+        $revenueToday = $queryToday->whereDate('bookinghotel.CreateDate', $currentDate)->first()->revenue;
 
         $queryYesterday = clone $query;
-        $revenueYesterday = $queryYesterday->whereDate('bookinghotel.updated_at', $previousDate)->first()->revenue;
+        $revenueYesterday = $queryYesterday->whereDate('bookinghotel.CreateDate', $previousDate)->first()->revenue;
 
         // Doanh thu trong tuần này và tháng này
-        $queryWeek = clone $query;
-        $revenueWeek = $queryWeek->whereBetween('bookinghotel.updated_at', [$startOfWeek, $currentDate])->sum('bookinghotel.Price');
+        $revenueWeek =
+            $revenue = DB::table('bookinghotel')
+            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
+            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
+            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
+            ->whereBetween('bookinghotel.CreateDate', [$currentWeekStart, $currentWeekEnd])
+            ->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'))
+            ->pluck('revenue')
+            ->first();
 
-        $queryMonth = clone $query;
-        $revenueMonth = $queryMonth->whereBetween('bookinghotel.updated_at', [$startOfMonth, $currentDate])->sum('bookinghotel.Price');
+
+
 
 
 
@@ -447,44 +467,77 @@ class HotelController extends Controller
         }
 
         $revenueByDayInWeek = [];
+        $daysOfWeek = ['Chủ Nhật 🥴', 'Thứ 2 😖', 'Thứ 3 😏', 'Thứ 4 😌', 'Thứ 5 😊', 'Thứ 6 😜', 'Thứ 7 😝'];
+
         foreach ($daysInWeek as $day) {
+            $dayOfWeek = Carbon::parse($day)->dayOfWeek; // Lấy thứ trong tuần (0 = Chủ Nhật, 6 = Thứ Bảy)
+            $dayName = $daysOfWeek[$dayOfWeek]; // Chuyển đổi thứ trong tuần thành tên
+
+            $revenue = $query->whereDate('bookinghotel.CreateDate', $day)->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'))->first()->revenue;
+
             $revenueByDayInWeek[] = [
-                'name' => $day,
-                'data' => $query->whereDate('bookinghotel.updated_at', $day)->first()->revenue,
+                'name' => $dayName,
+                'data' => $revenue,
             ];
         }
 
         // Tạo dữ liệu chi tiết cho biểu đồ tab Tháng
         $weeksInMonth = [];
-        $currentMonth = date('m', strtotime($startOfMonth));
-        $currentWeekStart = $startOfWeek;
-        while (date('m', strtotime($currentWeekStart)) == $currentMonth) {
+        $startOfMonth = date('Y-m-01');
+        $endOfMonth = date('Y-m-t', strtotime($startOfMonth));
+        $weekNumber = 1;
+
+        $currentWeekStart = $startOfMonth;
+
+        while (strtotime($currentWeekStart) <= strtotime($endOfMonth)) {
+            $currentWeekEnd = date('Y-m-d', strtotime('+6 days', strtotime($currentWeekStart)));
+            if (strtotime($currentWeekEnd) > strtotime($endOfMonth)) {
+                $currentWeekEnd = $endOfMonth; // Nếu tuần kết thúc vượt quá cuối tháng, lấy ngày cuối tháng
+            }
+
             $weeksInMonth[] = [
+                'name' => $weekNumber,
                 'from' => $currentWeekStart,
-                'to' => date('Y-m-d', strtotime('+6 days', strtotime($currentWeekStart))),
+                'to' => $currentWeekEnd,
             ];
+            $weekNumber++;
             $currentWeekStart = date('Y-m-d', strtotime('+7 days', strtotime($currentWeekStart)));
         }
 
+
         $revenueByWeekInMonth = [];
         foreach ($weeksInMonth as $week) {
+            $from = Carbon::parse($week['from'])->startOfDay()->toDateTimeString();
+            $to = Carbon::parse($week['to'])->endOfDay()->toDateTimeString();
+
+
+            $revenue = DB::table('bookinghotel')
+                ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
+                ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
+                ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
+                ->whereBetween('bookinghotel.CreateDate', [$from, $to])
+                ->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'))
+                ->pluck('revenue')
+                ->first();
+            // Lưu giá trị vào mảng
             $revenueByWeekInMonth[] = [
-                'name' => $week['from'],
-                'data' => $query->whereBetween('bookinghotel.updated_at', [$week['from'], $week['to']])->sum('bookinghotel.Price'),
+                'name' => $week['name'],
+                'data' => $revenue,
             ];
         }
+        $revenueThisMonth = DB::table('bookinghotel')
+            ->whereBetween('bookinghotel.CreateDate', [$currentMonthStart, $currentMonthEnd])
+            ->sum('bookinghotel.Price');
+
 
         // So sánh doanh thu của tuần này với tuần trước
-        $previousWeekStart = date('Y-m-d', strtotime('-1 week', strtotime($startOfWeek)));
-        $previousWeekEnd = date('Y-m-d', strtotime('-1 day', strtotime($startOfWeek)));
-        $revenueLastWeek = $query->whereBetween('bookinghotel.updated_at', [$previousWeekStart, $previousWeekEnd])->sum('bookinghotel.Price');
-        $comparisonWeekVsLastWeek = ($revenueLastWeek != 0) ? (($revenueWeek - $revenueLastWeek) / $revenueLastWeek * 100) : 0;
+        $revenueThisWeek = $query->whereBetween('bookinghotel.CreateDate', [$currentWeekStart, $currentWeekEnd])->sum('bookinghotel.Price');
+        $revenueLastWeek = $query->whereBetween('bookinghotel.CreateDate', [$previousWeekStart, $previousWeekEnd])->sum('bookinghotel.Price');
+        $comparisonWeekVsLastWeek = ($revenueLastWeek != 0) ? (($revenueThisWeek - $revenueLastWeek) / $revenueLastWeek * 100) : 0;
 
         // So sánh doanh thu của tháng này với doanh thu của tháng trước
-        $previousMonthStart = date('Y-m-01', strtotime('-1 month', strtotime($startOfMonth)));
-        $previousMonthEnd = date('Y-m-t', strtotime('-1 month', strtotime($startOfMonth)));
-        $revenueLastMonth = $query->whereBetween('bookinghotel.updated_at', [$previousMonthStart, $previousMonthEnd])->sum('bookinghotel.Price');
-        $comparisonMonthVsLastMonth = ($revenueLastMonth != 0) ? (($revenueMonth - $revenueLastMonth) / $revenueLastMonth * 100) : 0;
+        $revenueLastMonth = $query->whereBetween('bookinghotel.CreateDate', [$previousMonthStart, $previousMonthEnd])->sum('bookinghotel.Price');
+        $comparisonMonthVsLastMonth = ($revenueLastMonth != 0) ? (($revenueThisMonth - $revenueLastMonth) / $revenueLastMonth * 100) : 0;
 
         // Tạo dữ liệu cho số lượng đặt phòng theo loại phòng
         $queryGetBookingTypeRooms = DB::table('bookinghotel')
@@ -496,111 +549,18 @@ class HotelController extends Controller
             ->addSelect(DB::raw('COUNT(bookinghotel.id) as bookings_count'))
             ->groupBy('typeroom.Name');
 
-        $resultBookingTypeRooms = $queryGetBookingTypeRooms->get();
+        $resultBookingTypeRooms = $queryGetBookingTypeRooms->pluck('bookings_count', 'room_type')->toArray();
 
+        $resultArray = [];
+        foreach ($resultBookingTypeRooms as $roomType => $bookingsCount) {
+            $resultArray[] = [
+                'name' => $roomType,
+                'value' => $bookingsCount
+            ];
+        }
         // Xử lý kết quả
-        $bookingTypeRoomsData = [];
-        $totalBookingCount = $queryGetBookingTypeRooms->count();
 
-        // Booking counts by day
-        $bookingCountByDay = [];
-        $query = DB::table('bookinghotel')
-            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
-            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
-            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
-            ->select(DB::raw('typeroom.Name as room_type'), DB::raw('COUNT(bookinghotel.id) as bookings_count'), DB::raw('DATE(bookinghotel.updated_at) as booking_date'))
-            ->groupBy('booking_date', 'typeroom.Name');
-        $results = $query->get();
 
-        foreach ($results as $row) {
-            $bookingCountByDay[$row->room_type][$row->booking_date] = $row->bookings_count;
-        }
-
-        // Booking counts by week (using start date of the week)
-        $bookingCountByWeek = [];
-        $query = DB::table('bookinghotel')
-            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
-            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
-            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
-            ->select(DB::raw('typeroom.Name as room_type'), DB::raw('COUNT(bookinghotel.id) as bookings_count'), DB::raw('DATE(YEARWEEK(bookinghotel.updated_at,1)) as week_start')) // Assuming Sunday as week start
-            ->groupBy('week_start', 'typeroom.Name');
-        $results = $query->get();
-
-        foreach ($results as $row) {
-            $bookingCountByWeek[$row->room_type][$row->week_start] = $row->bookings_count;
-        }
-
-        // Booking counts by month
-        $bookingCountByMonth = [];
-        $query = DB::table('bookinghotel')
-            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
-            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
-            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
-            ->select(DB::raw('typeroom.Name as room_type'), DB::raw('COUNT(bookinghotel.id) as bookings_count'), DB::raw('MONTH(bookinghotel.updated_at) as booking_month'))
-            ->groupBy('booking_month', 'typeroom.Name');
-        $results = $query->get();
-
-        foreach ($results as $row) {
-            $bookingCountByMonth[$row->room_type][$row->booking_month] = $row->bookings_count;
-        }
-
-        // Booking counts by year
-        $bookingCountByYear = [];
-        $query = DB::table('bookinghotel')
-            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
-            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
-            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
-            ->select(DB::raw('typeroom.Name as room_type'), DB::raw('COUNT(bookinghotel.id) as bookings_count'), DB::raw('YEAR(bookinghotel.updated_at) as booking_year'))
-            ->groupBy('booking_year', 'typeroom.Name');
-        $results = $query->get();
-
-        foreach ($results as $row) {
-            $bookingCountByYear[$row->room_type][$row->booking_year] = $row->bookings_count;
-        }
-
-        $bookingDataByDay = [];
-        foreach ($resultBookingTypeRooms as $row) {
-            $roomType = $row->room_type;
-            $count = isset($bookingCountByDay[$roomType]) ? $bookingCountByDay[$roomType] : 0;
-
-            $bookingDataByDay[] = [
-                'name' => $roomType, // Tên là loại phòng
-                'data' => $count,
-            ];
-        }
-
-        $bookingDataByWeek = [];
-        foreach ($resultBookingTypeRooms as $row) {
-            $roomType = $row->room_type;
-            $count = isset($bookingCountByWeek[$roomType]) ? $bookingCountByWeek[$roomType] : 0;
-
-            $bookingDataByWeek[] = [
-                'name' => $roomType, // Tên là loại phòng
-                'data' => $count,
-            ];
-        }
-
-        $bookingDataByMonth = [];
-        foreach ($resultBookingTypeRooms as $row) {
-            $roomType = $row->room_type;
-            $count = isset($bookingCountByMonth[$roomType]) ? $bookingCountByMonth[$roomType] : 0;
-
-            $bookingDataByMonth[] = [
-                'name' => $roomType, // Tên là loại phòng
-                'data' => $count,
-            ];
-        }
-
-        $bookingDataByYear = [];
-        foreach ($resultBookingTypeRooms as $row) {
-            $roomType = $row->room_type;
-            $count = isset($bookingCountByYear[$roomType]) ? $bookingCountByYear[$roomType] : 0;
-
-            $bookingDataByYear[] = [
-                'name' => $roomType, // Tên là loại phòng
-                'data' => $count,
-            ];
-        }
 
         $response = [
             'today' => [
@@ -617,15 +577,12 @@ class HotelController extends Controller
             ],
             'month' => [
                 'from' => $startOfMonth,
-                'to' => $currentDate,
-                'revenue' => $revenueMonth,
+                'to' => $currentMonthEnd,
+                'revenue' => $revenueThisMonth,
                 'revenueByWeek' => $revenueByWeekInMonth,
                 'comparison' => $comparisonMonthVsLastMonth,
             ],
-            'bookingByDay' => $bookingDataByDay,
-            'bookingByWeek' => $bookingDataByWeek,
-            'bookingByMonth' => $bookingDataByMonth,
-            'bookingByYear' => $bookingDataByYear,
+            'booking_rate_typeroom' => $resultArray
         ];
 
         // Trả về dữ liệu response
