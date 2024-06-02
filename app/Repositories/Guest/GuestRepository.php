@@ -35,4 +35,9 @@ class GuestRepository extends BaseRepository implements IGuestRepository
             ->first();
         return $guest;
     }
+    public function getOneById(string $id)
+    {
+        $guest = $this->model->where('id', '=', $id)->first();
+        return $guest;
+    }
 }

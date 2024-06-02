@@ -19,4 +19,8 @@ class RoomRepository extends BaseRepository implements IRoomRepository
     {
         return $this->model::with('typeroom', 'typeroom.hotel')->where('id', '=', $id)->first();
     }
+    public function updateStateRoom(string $roomID, bool $state)
+    {
+        return $this->model::where('id', $roomID)->update(['State' => $state]);
+    }
 }
