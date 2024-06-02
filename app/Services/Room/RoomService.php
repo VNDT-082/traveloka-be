@@ -23,4 +23,8 @@ class RoomService extends BaseService implements IRoomService
     {
         return $this->repository->getOneById($id);
     }
+    public function updateStateRoom(string $roomID, bool $state)
+    {
+        return $this->repository->updateStateRoom($roomID, $state);
+    }
 }

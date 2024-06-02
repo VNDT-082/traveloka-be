@@ -11,4 +11,29 @@ class BookingHotel_Model extends Model
     protected $table = 'bookinghotel';
     protected $primary = 'id';
     public $incrementing = false;
+    protected $fillable = [
+        'id',
+        'GuestId',
+        'RoomId',
+        'ConfirmBy',
+        'CreateDate',
+        'Price',
+        'Gift',
+        'Discount',
+        'State',
+        'Notes',
+        'TimeRecive',
+        'TimeLeave',
+        'ConfirmAt',
+        'created_at',
+        'updated_at',
+        'GiftCode',
+        'GiftCodePrice',
+        'VAT',
+        'TypePay'
+    ];
+    public function memberbookhotel()
+    {
+        return $this->hasMany(Guest_Model::class, 'BookHotelId', 'id');
+    }
 }

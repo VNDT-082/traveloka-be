@@ -17,4 +17,8 @@ class GuestService extends BaseService implements IGuestService
     {
         return $this->repository->getOneByEmail($email);
     }
+    public function getOneById(string $id)
+    {
+        return $this->repository->getOneById($id);
+    }
 }

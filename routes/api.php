@@ -13,16 +13,43 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
-
+use App\Http\Controllers\API\BookingHotel_Controller;
 use App\Http\Controllers\API\Districts_Controller;
+use App\Http\Controllers\API\Poster_Controller;
 use App\Http\Controllers\API\Provinces_Controller;
+use App\Http\Controllers\API\RateHotel_Controller;
 use App\Http\Controllers\API\Wards_Controller;
 
 use App\Http\Controllers\API\Staff_Controller;
 
+use App\Services\BookingHotel\BookingHotelService;
+
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+//Dang ky booking hotel
+Route::prefix('booking-hotel')->group(function () {
+    Route::post('add-new-booking', [BookingHotel_Controller::class, 'store'])->name('bookingHotel.addNewBooking');
+});
+
+
+//Dang ky rate hotel
+Route::prefix('rate-hotel')->group(function () {
+    Route::post('add-new-rate', [RateHotel_Controller::class, 'addNewRate'])->name('rateHotel.addNewRate');
+});
+
+
+// dang ky route Poster
+Route::prefix('poster')->group(function () {
+    //param: giftcode
+    Route::get('get-one-by-giftcode', [Poster_Controller::class, 'getOneByGitCode'])
+        ->name('poster.getOneByGitCode');
+    Route::get('get-one-by-id', [Poster_Controller::class, 'getOneById'])
+        ->name('poster.getOneById');
+});
+
 
 // dang ky route Hotel
 Route::prefix('hotel')->group(function () {
