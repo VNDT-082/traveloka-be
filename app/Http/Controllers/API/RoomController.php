@@ -138,25 +138,59 @@ class RoomController extends Controller
 
     public function selectRoom(Request $request)
     {
-        try {
-            $id_hotel = $request->id;
+        $id_hotel = $request->id;
 
-            $sql = "SELECT typeroom.Name AS type_name, typeroom.Price AS type_price, hotel.Name AS hotel_name, room.* 
-                    FROM typeroom
-                    INNER JOIN hotel ON typeroom.HotelId = hotel.id
-                    INNER JOIN room ON room.TypeRoomId = typeroom.id
-                    WHERE hotel.id = '$id_hotel'";
-            $data = DB::select($sql);
+        // Truy vấn chính: lấy dữ liệu phòng, loại phòng và khách sạn
+        $data = DB::table('room')
+            ->select([
+                'room.*',
+                'typeroom.Name AS type_name',
+                'typeroom.Price AS type_price',
+                'hotel.Name AS hotel_name'
+            ])
+            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.id')
+            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
+            ->where('hotel.id', $id_hotel)
+            ->get();
 
-            return response()->json(
-                $data,
-                200
-            );
-        } catch (Exception $e) {
-            return response()->json([
-                'data' => $e,
-            ], 404);
+
+
+        $roomIds = $data->pluck('room_id')->toArray();
+
+        $bookingData = DB::table('bookinghotel')
+            ->whereIn('RoomId', $roomIds)
+            ->get()
+            ->groupBy('RoomId');
+
+        foreach ($data as $room) {
+            $room->booking = isset($bookingData[$room->room_id]) ? $bookingData[$room->room_id] : [];
         }
+
+        $bookHotelIds = $bookingData->flatMap(function ($bookings) {
+            return $bookings->pluck('id');
+        })->toArray();
+
+
+        $memberBookingData = DB::table('memberbookhotel')
+            ->whereIn('BookHotelId', $bookHotelIds)
+            ->get()
+            ->groupBy('BookHotelId');
+
+        foreach ($data as $room) {
+            if (isset($bookingData[$room->room_id])) {
+                foreach ($bookingData[$room->room_id] as $booking) {
+                    $booking->members = isset($memberBookingData[$booking->id])
+                        ? $memberBookingData[$booking->id]
+                        : [];
+                }
+                $room->booking = $bookingData[$room->room_id];
+            } else {
+                $room->booking = [];
+            }
+        }
+
+
+        return response()->json($data, 200);
     }
 
 

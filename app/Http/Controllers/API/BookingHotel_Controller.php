@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Mail\BookingConfirmation;
+use App\Mail\BookingCancellation;
+
 use App\Models\BookingHotel_Model;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -86,10 +88,10 @@ class BookingHotel_Controller extends Controller
                 DB::raw('CASE 
             WHEN b.State = 0 THEN "Chờ xác nhận" 
             WHEN b.State = 1 THEN "Đã xác nhận" 
-            WHEN b.State = 3 THEN "Đang ở" 
-            WHEN b.State = 4 THEN "Checked out"
-            WHEN b.State = 5 THEN "Yêu cầu hủy" 
-            WHEN b.State = 6 THEN "Đã hủy" 
+            WHEN b.State = 2 THEN "Đang ở" 
+            WHEN b.State = 3 THEN "Checked out"
+            WHEN b.State = 4 THEN "Yêu cầu hủy" 
+            WHEN b.State = 5 THEN "Đã hủy" 
             ELSE "Đã thanh toán"
             END AS booking_status '),
                 'mb.member_count', // Di chuyển 'member_count' xuống đây
@@ -191,5 +193,69 @@ class BookingHotel_Controller extends Controller
             'id_booking' => $request->id_booking,
             'status' => $request->status
         ], 200);
+    }
+
+    public function cancelBooking(Request $request)
+    {
+
+
+        $bookingId = $request->input('booking_id');
+
+        DB::beginTransaction();
+
+        try {
+            $roomId = DB::table('bookinghotel')->select('RoomId')->where('id', $bookingId);;
+            DB::table('bookinghotel')
+                ->where('id', $bookingId)
+                ->update([
+                    'State' => 6,
+                    'updated_at' => Carbon::now()
+                ]);
+
+            DB::table('room')
+                ->where('id', $roomId)
+                ->update([
+                    'State' => 0,
+                    'updated_at' => Carbon::now()
+                ]);
+
+            DB::commit();
+
+            $booking = DB::table('bookinghotel AS b')
+                ->join('guest AS g', 'b.GuestId', '=', 'g.id')
+                ->join('room AS r', 'b.RoomId', '=', 'r.id')
+                ->join('typeroom AS tr', 'r.TypeRoomId', '=', 'tr.id')
+                ->join('hotel AS h', 'tr.HotelId', '=', 'h.id')
+                ->select([
+                    'g.email',
+                    'g.Name as guest_name',
+                    'b.*',
+                    'h.Name as hotel_name',
+                    'r.RoomName as room_name',
+                    'tr.Name as typeroom_name'
+                ])
+                ->where('b.id', $bookingId)
+                ->first();
+
+            $bookingDetails = [
+                'booking' => $booking,
+            ];
+
+
+            if ($booking) {
+                Mail::to($booking->email)->send(new BookingCancellation($bookingDetails));
+            }
+
+            return response()->json([
+                'message' => 'Booking canceled successfully',
+                'booking_id' => $bookingId
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'An error occurred while canceling the booking',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }
