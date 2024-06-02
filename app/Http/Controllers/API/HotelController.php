@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\Hotel\MyHotelService;
 use App\Models\Hotel_Model;
-
+use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +39,7 @@ class HotelController extends Controller
 
         $hotels = $this->hotelService->getHotelsByProvince($provinceName);
 
-        return response()->json(['hotels' => $hotels]);
+        return response()->json($hotels);
     }
 
     public function insertHotel(Request $request)
@@ -82,10 +82,20 @@ class HotelController extends Controller
 
 
             return response()->json([
-                'id' => $randomIdHotel,
+                [
+                    "id" => $randomIdHotel,
+                    "message" => "success",
+                    "hotel_id" => $randomIdHotel,
+                    "status" => true
+                ]
             ], 200);
         } catch (Exception $e) {
-            return response()->json(['message' => $e], 500);
+            return response()->json([
+                "id" => null,
+                "message" => $e,
+                "hotel_id" => null,
+                "status" => false
+            ], 500);
         }
     }
 
@@ -306,25 +316,276 @@ class HotelController extends Controller
             $id = $request->id;
 
             $sql = "SELECT 
-                        hotel.*, 
-                        COUNT(typeroom.id) AS number_of_room_types,
-                        SUM(CASE WHEN room.State = 0 THEN 1 ELSE 0 END) AS total_rooms_state_0
-                    FROM 
-                        hotel
-                    LEFT JOIN 
-                        typeroom ON hotel.id = typeroom.HotelId
-                    LEFT JOIN 
-                        room ON typeroom.id = room.TypeRoomId
-                    WHERE 
-                        hotel.id = '$id'
-                    GROUP BY 
-                        hotel.id, hotel.Name, hotel.Address, hotel.Telephone, hotel.Description, hotel.LocationDetail, hotel.IsActive, hotel.TimeCheckIn, hotel.TimeCheckOut,hotel.created_at, hotel.updated_at, hotel.Type, hotel.StarRate, hotel.Province_Id ;
-                    ";
+                    hotel.*, 
+                    COUNT(typeroom.id) AS number_of_room_types,
+                    SUM(CASE WHEN room.State = 0 THEN 1 ELSE 0 END) AS total_rooms_state_0,
+                    imageshotel.FileName AS hotel_image,
+                    imageshotel.id AS idImage
+                FROM 
+                    hotel
+                LEFT JOIN 
+                    typeroom ON hotel.id = typeroom.HotelId
+                LEFT JOIN 
+                    room ON typeroom.id = room.TypeRoomId
+                LEFT JOIN
+                    imageshotel ON hotel.id = imageshotel.HotelId
+                    AND imageshotel.TypeRoom = 'None;Ảnh bìa'
+                WHERE 
+                    hotel.id = '$id'
+                GROUP BY 
+                    hotel.id, hotel.Name, hotel.Address, hotel.Telephone, hotel.Description, hotel.LocationDetail, hotel.IsActive, hotel.TimeCheckIn, hotel.TimeCheckOut, hotel.created_at, hotel.updated_at, hotel.Type, hotel.StarRate, hotel.Province_Id, imageshotel.FileName,imageshotel.id;
+                                ";
 
             $hotel = DB::select($sql);
             return response()->json($hotel);
         } catch (Exception $e) {
             return response()->json(['message' => $e], 500);
         }
+    }
+
+    public function updateHotel(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $Name = $request->Name;
+            $Address = $request->Address;
+            $Telephone = $request->Telephone;
+            $Description = (empty($request->Description)) ? "" :  $request->Description;
+            $LocationDetail = (empty($request->LocationDetail)) ? "" :  $request->LocationDetail;
+            $IsActive = (empty($request->IsActive)) ? 0 :  $request->IsActive;
+            $TimeCheckIn = $request->TimeCheckIn;
+            $TimeCheckOut = $request->TimeCheckOut;
+            $Type = (empty($request->Type)) ? "" :  $request->Type;
+            $StarRate = (empty($request->StarRate)) ? 0 :  $request->StarRate;
+            $update_at = date("YmdHis");
+
+
+
+            $sql = "UPDATE hotel SET Name='$Name',Address='$Address',Telephone='$Telephone',Description='$Description',LocationDetail='$LocationDetail',IsActive='$IsActive',TimeCheckIn='$TimeCheckIn',TimeCheckOut='$TimeCheckOut',updated_at='$update_at',Type='$Type',StarRate='$StarRate' WHERE id ='$id'";
+
+            $hotel = DB::update($sql);
+
+            if ($hotel > 0) {
+                return response()->json(true, 200);
+            } else {
+                response()->json(false, 200);
+            }
+        } catch (Exception $e) {
+            return response()->json(['message' => $e], 500);
+        }
+    }
+
+    public function getListProvices()
+    {
+        try {
+            $sql = 'SELECT * FROM provinces';
+            $res = DB::select($sql);
+            if ($res) {
+                return response()->json($res, 200);
+            } else {
+                return response()->json([], 200);
+            }
+        } catch (Exception $e) {
+            return response()->json($e, 500);
+        }
+    }
+
+    public function getListDistrict(Request $request)
+    {
+        try {
+            $id = $request->input('id');
+            $sql = "SELECT * FROM districts WHERE districts.province_code = $id";
+            $res = DB::select($sql);
+            if ($res) {
+                return response()->json($res, 200);
+            } else {
+                return response()->json([], 200);
+            }
+        } catch (Exception $e) {
+            return response()->json($e, 500);
+        }
+    }
+
+    public function getRevenue(Request $request)
+    {
+        $idHotel = $request->idHotel;
+
+        $previousDate = date('Y-m-d', strtotime('-1 day'));
+        $currentDate = date('Y-m-d');
+
+        $currentWeekStart = Carbon::now()->startOfWeek()->toDateString();
+        $currentWeekEnd = Carbon::now()->endOfWeek()->toDateString();
+
+        $previousWeekStart = Carbon::now()->subWeek()->startOfWeek()->toDateString();
+        $previousWeekEnd = Carbon::now()->subWeek()->endOfWeek()->toDateString();
+
+        $currentMonthStart = Carbon::now()->startOfMonth()->toDateTimeString();
+        $currentMonthEnd = Carbon::now()->endOfMonth()->toDateTimeString();
+
+        $previousMonthStart = Carbon::now()->subMonth()->startOfMonth()->toDateString();
+        $previousMonthEnd = Carbon::now()->subMonth()->endOfMonth()->toDateString();
+
+
+        $startOfWeek = date('Y-m-d', strtotime('monday this week'));
+        $startOfMonth = date('Y-m-01');
+
+        $query = DB::table('bookinghotel')
+            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
+            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
+            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
+            ->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'));
+
+        if ($idHotel) {
+            $query->where('hotel.id', $idHotel);
+        }
+
+        $queryToday = clone $query;
+        $revenueToday = $queryToday->whereDate('bookinghotel.CreateDate', $currentDate)->first()->revenue;
+
+        $queryYesterday = clone $query;
+        $revenueYesterday = $queryYesterday->whereDate('bookinghotel.CreateDate', $previousDate)->first()->revenue;
+
+        // Doanh thu trong tuần này và tháng này
+        $revenueWeek =
+            $revenue = DB::table('bookinghotel')
+            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
+            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
+            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
+            ->whereBetween('bookinghotel.CreateDate', [$currentWeekStart, $currentWeekEnd])
+            ->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'))
+            ->pluck('revenue')
+            ->first();
+
+
+
+
+
+
+        $daysInWeek = [];
+        for ($i = 0; $i < 7; $i++) {
+            $daysInWeek[] = date('Y-m-d', strtotime("+$i days", strtotime($startOfWeek)));
+        }
+
+        $revenueByDayInWeek = [];
+        $daysOfWeek = ['Chủ Nhật 🥴', 'Thứ 2 😖', 'Thứ 3 😏', 'Thứ 4 😌', 'Thứ 5 😊', 'Thứ 6 😜', 'Thứ 7 😝'];
+
+        foreach ($daysInWeek as $day) {
+            $dayOfWeek = Carbon::parse($day)->dayOfWeek; // Lấy thứ trong tuần (0 = Chủ Nhật, 6 = Thứ Bảy)
+            $dayName = $daysOfWeek[$dayOfWeek]; // Chuyển đổi thứ trong tuần thành tên
+
+            $revenue = $query->whereDate('bookinghotel.CreateDate', $day)->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'))->first()->revenue;
+
+            $revenueByDayInWeek[] = [
+                'name' => $dayName,
+                'data' => $revenue,
+            ];
+        }
+
+        // Tạo dữ liệu chi tiết cho biểu đồ tab Tháng
+        $weeksInMonth = [];
+        $startOfMonth = date('Y-m-01');
+        $endOfMonth = date('Y-m-t', strtotime($startOfMonth));
+        $weekNumber = 1;
+
+        $currentWeekStart = $startOfMonth;
+
+        while (strtotime($currentWeekStart) <= strtotime($endOfMonth)) {
+            $currentWeekEnd = date('Y-m-d', strtotime('+6 days', strtotime($currentWeekStart)));
+            if (strtotime($currentWeekEnd) > strtotime($endOfMonth)) {
+                $currentWeekEnd = $endOfMonth; // Nếu tuần kết thúc vượt quá cuối tháng, lấy ngày cuối tháng
+            }
+
+            $weeksInMonth[] = [
+                'name' => $weekNumber,
+                'from' => $currentWeekStart,
+                'to' => $currentWeekEnd,
+            ];
+            $weekNumber++;
+            $currentWeekStart = date('Y-m-d', strtotime('+7 days', strtotime($currentWeekStart)));
+        }
+
+
+        $revenueByWeekInMonth = [];
+        foreach ($weeksInMonth as $week) {
+            $from = Carbon::parse($week['from'])->startOfDay()->toDateTimeString();
+            $to = Carbon::parse($week['to'])->endOfDay()->toDateTimeString();
+
+
+            $revenue = DB::table('bookinghotel')
+                ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
+                ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
+                ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
+                ->whereBetween('bookinghotel.CreateDate', [$from, $to])
+                ->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'))
+                ->pluck('revenue')
+                ->first();
+            // Lưu giá trị vào mảng
+            $revenueByWeekInMonth[] = [
+                'name' => $week['name'],
+                'data' => $revenue,
+            ];
+        }
+        $revenueThisMonth = DB::table('bookinghotel')
+            ->whereBetween('bookinghotel.CreateDate', [$currentMonthStart, $currentMonthEnd])
+            ->sum('bookinghotel.Price');
+
+
+        // So sánh doanh thu của tuần này với tuần trước
+        $revenueThisWeek = $query->whereBetween('bookinghotel.CreateDate', [$currentWeekStart, $currentWeekEnd])->sum('bookinghotel.Price');
+        $revenueLastWeek = $query->whereBetween('bookinghotel.CreateDate', [$previousWeekStart, $previousWeekEnd])->sum('bookinghotel.Price');
+        $comparisonWeekVsLastWeek = ($revenueLastWeek != 0) ? (($revenueThisWeek - $revenueLastWeek) / $revenueLastWeek * 100) : 0;
+
+        // So sánh doanh thu của tháng này với doanh thu của tháng trước
+        $revenueLastMonth = $query->whereBetween('bookinghotel.CreateDate', [$previousMonthStart, $previousMonthEnd])->sum('bookinghotel.Price');
+        $comparisonMonthVsLastMonth = ($revenueLastMonth != 0) ? (($revenueThisMonth - $revenueLastMonth) / $revenueLastMonth * 100) : 0;
+
+        // Tạo dữ liệu cho số lượng đặt phòng theo loại phòng
+        $queryGetBookingTypeRooms = DB::table('bookinghotel')
+            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
+            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
+            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
+            ->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'))
+            ->addSelect(DB::raw('typeroom.Name as room_type'))
+            ->addSelect(DB::raw('COUNT(bookinghotel.id) as bookings_count'))
+            ->groupBy('typeroom.Name');
+
+        $resultBookingTypeRooms = $queryGetBookingTypeRooms->pluck('bookings_count', 'room_type')->toArray();
+
+        $resultArray = [];
+        foreach ($resultBookingTypeRooms as $roomType => $bookingsCount) {
+            $resultArray[] = [
+                'name' => $roomType,
+                'value' => $bookingsCount
+            ];
+        }
+        // Xử lý kết quả
+
+
+
+        $response = [
+            'today' => [
+                'day' => $currentDate,
+                'revenue' => $revenueToday,
+                'comparison' => ($revenueYesterday != 0) ? (($revenueToday - $revenueYesterday) / $revenueYesterday * 100) : 0,
+            ],
+            'week' => [
+                'from' => $startOfWeek,
+                'to' => $currentDate,
+                'revenue' => $revenueWeek,
+                'revenueByDay' => $revenueByDayInWeek,
+                'comparison' => $comparisonWeekVsLastWeek,
+            ],
+            'month' => [
+                'from' => $startOfMonth,
+                'to' => $currentMonthEnd,
+                'revenue' => $revenueThisMonth,
+                'revenueByWeek' => $revenueByWeekInMonth,
+                'comparison' => $comparisonMonthVsLastMonth,
+            ],
+            'booking_rate_typeroom' => $resultArray
+        ];
+
+        // Trả về dữ liệu response
+        return response()->json($response, 200);
     }
 }

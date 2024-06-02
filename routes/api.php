@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\BookingHotel_Controller;
 use App\Http\Controllers\API\DiaDiemLanCan_Controller;
 use App\Http\Controllers\API\Guest_Controller;
 use App\Http\Controllers\API\Hotel_Controller;
@@ -20,7 +21,9 @@ use App\Http\Controllers\API\RateHotel_Controller;
 use App\Http\Controllers\API\Wards_Controller;
 
 use App\Http\Controllers\API\Staff_Controller;
+
 use App\Services\BookingHotel\BookingHotelService;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -64,18 +67,32 @@ Route::prefix('hotel')->group(function () {
     //param: id
     Route::get('get-list-by-province-id', [Hotel_Controller::class, 'getHotelsByProvinceId'])->name('hotel.getHotelsByProvinceId');
 
-
-
-
     Route::get('/hotels-by-province', [HotelController::class, 'getHotelsByProvince']);
 
     Route::get('/hotels', [HotelController::class, 'getAllHotels']);
 
     Route::post('/insert-hotel', [HotelController::class, 'insertHotel']);
 
-
     Route::get('/get-hotel', [HotelController::class, 'getHotel']);
+
+    Route::put('/update-hotel', [HotelController::class, 'updateHotel']);
+
+    Route::get('/get-renvenu', [HotelController::class, 'getRevenue']);
 });
+//Booking
+
+Route::get('/all-booking', [BookingHotel_Controller::class, 'getBookingsByHotelId']);
+Route::put('/update-state-booking', [BookingHotel_Controller::class, 'updateState']);
+Route::put('/cancel-booking', [BookingHotel_Controller::class, 'cancelBooking']);
+
+
+
+
+//Address
+
+Route::get('/address/provices', [HotelController::class, 'getListProvices']);
+Route::get('/address/provices/district', [HotelController::class, 'getListDistrict']);
+
 
 //Room
 
@@ -104,10 +121,12 @@ Route::get('/get-user-info', [AuthController::class, 'getUserInfo']);
 
 // Administrator Hotel Login
 Route::post('/login-administrator', [AuthController::class, 'loginAdminHotel']);
+// Route::get('/information-administrator', [UserController::class, 'getInfoAdmin']);
 
 
 //Upload
 Route::post('/upload-image', [ImageController::class, 'upload']);
+Route::post('/update-cover-image-hotel', [ImageController::class, 'updateCoverImage']);
 
 
 //?? Staff

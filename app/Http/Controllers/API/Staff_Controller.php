@@ -55,15 +55,15 @@ class Staff_Controller extends Controller
             $currentDateTime = date("YmdHis") . substr((string)microtime(true), 2, 6);
             $id_staff = $request->id_staff;
             $id_hotel = $request->id_hotel;
-            $randomIdLS = "LS". $currentDateTime . rand(0, 9999);
+            $randomIdLS = "LS" . $currentDateTime . rand(0, 9999);
 
-             $sql = "INSERT INTO `liststaff`(`id`, `StaffId`, `HotelId`, `Roles`, `Type`, `IsActive`, `Notes`) 
+            $sql = "INSERT INTO `listStaff`(`id`, `StaffId`, `HotelId`, `Roles`, `Type`, `IsActive`, `Notes`) 
                     VALUES (?,?,?,?,?,?,?)";
 
             DB::insert($sql, [
                 $randomIdLS,
                 $id_staff,
-                $id_hotel ,
+                $id_hotel,
                 "Admin",
                 "Admin",
                 1,
@@ -75,13 +75,8 @@ class Staff_Controller extends Controller
                 'id_hotel' => $id_hotel,
                 'id_staff' => $id_staff,
             ], 200);
-        }
-        catch(Exception $e) {
-            return response()->json(['message' => $e],500);
-
+        } catch (Exception $e) {
+            return response()->json(['message' => $e], 500);
         }
     }
-
-
-
 }
