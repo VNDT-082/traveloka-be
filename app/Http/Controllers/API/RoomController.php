@@ -155,7 +155,7 @@ class RoomController extends Controller
 
 
 
-        $roomIds = $data->pluck('room_id')->toArray();
+        $roomIds = $data->pluck('id')->toArray();
 
         $bookingData = DB::table('bookinghotel')
             ->whereIn('RoomId', $roomIds)
@@ -163,7 +163,7 @@ class RoomController extends Controller
             ->groupBy('RoomId');
 
         foreach ($data as $room) {
-            $room->booking = isset($bookingData[$room->room_id]) ? $bookingData[$room->room_id] : [];
+            $room->booking = isset($bookingData[$room->id]) ? $bookingData[$room->id] : [];
         }
 
         $bookHotelIds = $bookingData->flatMap(function ($bookings) {
@@ -177,13 +177,13 @@ class RoomController extends Controller
             ->groupBy('BookHotelId');
 
         foreach ($data as $room) {
-            if (isset($bookingData[$room->room_id])) {
-                foreach ($bookingData[$room->room_id] as $booking) {
+            if (isset($bookingData[$room->id])) {
+                foreach ($bookingData[$room->id] as $booking) {
                     $booking->members = isset($memberBookingData[$booking->id])
                         ? $memberBookingData[$booking->id]
                         : [];
                 }
-                $room->booking = $bookingData[$room->room_id];
+                $room->booking = $bookingData[$room->id];
             } else {
                 $room->booking = [];
             }
@@ -268,5 +268,72 @@ class RoomController extends Controller
                 500
             );
         }
+    }
+
+    public function getRoomAvailability(Request $request)
+    {
+        $hotelId = $request->input('hotelId');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $rooms = DB::table('room')
+            ->join('typeroom', 'room.TypeRoomId', '=', 'typeroom.id')
+            ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
+            ->leftJoin('bookinghotel', function ($join) use ($startDate, $endDate) {
+                $join->on('room.id', '=', 'bookinghotel.RoomId')
+                    ->where(function ($query) use ($startDate, $endDate) {
+                        $query->whereBetween('bookinghotel.TimeRecive', [$startDate, $endDate])
+                            ->orWhereBetween('bookinghotel.TimeLeave', [$startDate, $endDate])
+                            ->orWhere(function ($query) use ($startDate, $endDate) {
+                                $query->where('bookinghotel.TimeRecive', '<=', $startDate)
+                                    ->where('bookinghotel.TimeLeave', '>=', $endDate);
+                            });
+                    });
+            })
+            ->select([
+                'room.id AS room_id',
+                'room.RoomName AS room_name',
+                'typeroom.Name AS type_name',
+                'typeroom.Price AS type_price',
+                'hotel.Name AS hotel_name',
+                'bookinghotel.id AS booking_id',
+                'bookinghotel.GuestId',
+                'bookinghotel.TimeRecive AS check_in_date',
+                'bookinghotel.TimeLeave AS check_out_date',
+                'bookinghotel.State AS booking_status'
+            ])
+            ->where('hotel.id', $hotelId)
+            ->get();
+
+        $availabilityData = [];
+        foreach ($rooms as $room) {
+            if (!isset($availabilityData[$room->room_id])) {
+                $availabilityData[$room->room_id] = [
+                    'room_id' => $room->room_id,
+                    'room_name' => $room->room_name,
+                    'type_name' => $room->type_name,
+                    'type_price' => $room->type_price,
+                    'hotel_name' => $room->hotel_name,
+                    'availability' => []
+                ];
+            }
+
+            $status = 'Available';
+            if ($room->booking_id) {
+                $status = 'Booked';
+                $availabilityData[$room->room_id]['availability'][] = [
+                    'booking_id' => $room->booking_id,
+                    'guest_id' => $room->GuestId,
+                    'check_in_date' => $room->check_in_date,
+                    'check_out_date' => $room->check_out_date,
+                    'booking_status' => $room->booking_status,
+                    'status' => $status
+                ];
+            }
+        }
+
+        $availabilityData = array_values($availabilityData);
+
+        return response()->json($availabilityData, 200);
     }
 }

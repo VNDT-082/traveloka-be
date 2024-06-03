@@ -55,6 +55,7 @@ Route::prefix('hotel')->group(function () {
 //Booking
 
 Route::get('/all-booking', [BookingHotel_Controller::class, 'getBookingsByHotelId']);
+Route::post('/create-booking', [BookingHotel_Controller::class, 'createBooking']);
 Route::put('/update-state-booking', [BookingHotel_Controller::class, 'updateState']);
 Route::put('/cancel-booking', [BookingHotel_Controller::class, 'cancelBooking']);
 
@@ -72,6 +73,7 @@ Route::get('/address/provices/district', [HotelController::class, 'getListDistri
 Route::post('/room/insert-room', [RoomController::class, 'insertRoom']);
 Route::get('/room/select-room', [RoomController::class, 'selectRoom']);
 Route::put('/room/update-room', [RoomController::class, 'updateRoom']);
+Route::get('/room/room-availability', [RoomController::class, 'getRoomAvailability']);
 
 //TypeRoom
 Route::post('/room/insert-typeroom', [HotelController::class, 'insertTyperoom']);

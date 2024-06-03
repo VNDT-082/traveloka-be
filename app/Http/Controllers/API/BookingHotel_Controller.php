@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class BookingHotel_Controller extends Controller
@@ -137,6 +138,54 @@ class BookingHotel_Controller extends Controller
 
         return response()->json($query, 200);
     }
+
+    public function createBooking(Request $request)
+    {
+        Log::info('createBooking method called.');
+
+
+
+
+        $currentDateTime = date("YmdHis") . substr((string)microtime(true), 2, 6);
+        $randomId = "BK" . $currentDateTime . rand(0, 9999);
+
+        Log::info('Random Booking ID generated.', ['booking_id' => $randomId]);
+
+        $bookingId = DB::table('bookinghotel')->insert([
+            'id' => $randomId,
+            'RoomId' => $request['room_id'],
+            'GuestId' => $request['guest_id'],
+            'TimeRecive' => $request['time_recive'],
+            'TimeLeave' => $request['time_leave'],
+            'State' => $request['state'],
+            'Price' => $request['price'],
+            'CreateDate' => now(),
+            'created_at' => now()
+        ]);
+
+
+
+        Log::info('Booking created successfully.', ['booking_id' => $bookingId]);
+
+        foreach ($request['members'] as $member) {
+            $randomIdMember = "MB" . date("YmdHis") . substr((string)microtime(true), 2, 6) . rand(0, 9999);
+            $inserted = DB::table('memberbookhotel')->insert([
+                'id' => $randomIdMember,
+                'BookHotelId' => $randomId,
+                'FullName' => $member['name']
+            ]);
+
+
+            Log::info('Member inserted successfully.', ['member_id' => $randomIdMember]);
+        }
+
+        DB::commit();
+
+        Log::info('Transaction committed successfully.');
+
+        return response()->json(['message' => 'Booking created successfully'], 201);
+    }
+
 
     public function updateState(Request $request)
     {
