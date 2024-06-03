@@ -12,6 +12,10 @@ class RateHotel_Model extends Model
     protected $table = 'ratehotel';
     protected $primary = 'id';
     public $incrementing = false;
+    protected $fillable = [
+        'id', 'HotelId', 'GuestId', 'Rating', 'Description', 'Sach_Se',
+        'Thoai_Mai', 'Dich_Vu', 'HinhAnh', 'created_at', 'updated_at'
+    ];
     public function guest()
     {
         return $this->BelongsTo(Guest_Model::class, 'GuestId', 'id');

@@ -21,6 +21,16 @@ class Guest_Controller extends Controller
         //
         return 'appp';
     }
+    public function getOneById(Request $request)
+    {
+        if ($request->query('id')) {
+            $id = $request->query('id');
+            $response = $this->IGuestService->getOneById($id);
+            return $response ? ['status' => 200, 'result' => $response]
+                : ['status' => 200, 'result' => 'NOT_FOUND'];
+        }
+        return ['status' => 404, 'result' => 'NOT_FOUND'];
+    }
     public function getOneByEmail(Request $request)
     {
         if ($request->query('email')) {

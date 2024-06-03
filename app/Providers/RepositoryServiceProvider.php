@@ -26,10 +26,14 @@ use App\Repositories\ImagesHotel\IImagesHotelRepository;
 use App\Repositories\ImagesHotel\ImagesHotelRepository;
 use App\Repositories\ListStaff\IListStaffRepository;
 use App\Repositories\ListStaff\ListStaffRepository;
+use App\Repositories\MemberBookHotel\IMemberBookHotelRepository;
+use App\Repositories\MemberBookHotel\MemberBookHotelRepository;
 use App\Repositories\Message\IMessageRepository;
 use App\Repositories\Message\MessageRepository;
 use App\Repositories\PolicyHotel\IPolicyHotelRepository;
 use App\Repositories\PolicyHotel\PolicyHotelRepository;
+use App\Repositories\Poster\IPosterRepository;
+use App\Repositories\Poster\PosterRepository;
 use App\Repositories\Province\IProvinceRepository;
 use App\Repositories\Province\ProvinceRepository;
 use App\Repositories\Provinces\IProvincesRepository;
@@ -72,9 +76,13 @@ class RepositoryServiceProvider extends ServiceProvider
 
         $this->app->bind(IListStaffRepository::class, ListStaffRepository::class);
 
+        $this->app->bind(IMemberBookHotelRepository::class, MemberBookHotelRepository::class);
+
         $this->app->bind(IMessageRepository::class, MessageRepository::class);
 
         $this->app->bind(IPolicyHotelRepository::class, PolicyHotelRepository::class);
+
+        $this->app->bind(IPosterRepository::class, PosterRepository::class);
 
         $this->app->bind(IProvinceRepository::class, ProvinceRepository::class);
 

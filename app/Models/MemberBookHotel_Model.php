@@ -11,4 +11,7 @@ class MemberBookHotel_Model extends Model
     protected $table = 'memberbookhotel';
     protected $primary = 'id';
     public $incrementing = false;
+    protected $fillable = [
+        'id', 'BookHotelId', 'FullName', 'DateOfBirth', 'Sex', 'created_at', 'updated_at'
+    ];
 }

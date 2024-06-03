@@ -26,10 +26,14 @@ use App\Services\ImagesHotel\IImagesHotelService;
 use App\Services\ImagesHotel\ImagesHotelService;
 use App\Services\ListStaff\IListStaffService;
 use App\Services\ListStaff\ListStaffService;
+use App\Services\MemberBookHotel\IMemberBookHotelService;
+use App\Services\MemberBookHotel\MemberBookHotelService;
 use App\Services\Message\IMessageService;
 use App\Services\Message\MessageService;
 use App\Services\PolicyHotel\IPolicyHotelService;
 use App\Services\PolicyHotel\PolicyHotelService;
+use App\Services\Poster\IPosterService;
+use App\Services\Poster\PosterService;
 use App\Services\Province\IProvinceService;
 use App\Services\Province\ProvinceService;
 use App\Services\Provinces\IProvincesService;
@@ -38,10 +42,14 @@ use App\Services\RateHotel\IRateHotelService;
 use App\Services\RateHotel\RateHotelService;
 use App\Services\Room\IRoomService;
 use App\Services\Room\RoomService;
+use App\Services\SendMail\ISendMailService;
+use App\Services\SendMail\SendMailService;
 use App\Services\Staff\IStaffService;
 use App\Services\Staff\StaffService;
 use App\Services\TypeRoom\ITypeRoomService;
 use App\Services\TypeRoom\TypeRoomService;
+use App\Services\UploadFileService\IUploadFileService;
+use App\Services\UploadFileService\UploadFileService;
 use App\Services\Wards\IWardsService;
 use App\Services\Wards\WardsService;
 use Illuminate\Support\ServiceProvider;
@@ -71,9 +79,13 @@ class ServiceServiceProvider extends ServiceProvider
 
         $this->app->bind(IListStaffService::class, ListStaffService::class);
 
+        $this->app->bind(IMemberBookHotelService::class, MemberBookHotelService::class);
+
         $this->app->bind(IMessageService::class, MessageService::class);
 
         $this->app->bind(IPolicyHotelService::class, PolicyHotelService::class);
+
+        $this->app->bind(IPosterService::class, PosterService::class);
 
         $this->app->bind(IProvinceService::class, ProvinceService::class);
 
@@ -86,11 +98,13 @@ class ServiceServiceProvider extends ServiceProvider
         $this->app->bind(ITypeRoomService::class, TypeRoomService::class);
 
         //-------------------------------------
+        $this->app->bind(IUploadFileService::class, UploadFileService::class);
         $this->app->bind(IAdministrativeRegionsService::class, AdministrativeRegionsService::class);
         $this->app->bind(IAdministrativeUnitsService::class, AdministrativeUnitsService::class);
         $this->app->bind(IProvincesService::class, ProvincesService::class);
         $this->app->bind(IDistrictsService::class, DistrictsService::class);
         $this->app->bind(IWardsService::class, WardsService::class);
+        $this->app->bind(ISendMailService::class, SendMailService::class);
     }
 
     /**
