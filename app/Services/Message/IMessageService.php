@@ -6,4 +6,5 @@ use App\Services\IBaseService;
 
 interface IMessageService extends IBaseService
 {
+    public function getAllbyUserId($id);
 }

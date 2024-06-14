@@ -20,4 +20,8 @@ class PosterService extends BaseService implements IPosterService
     {
         return $this->repository->getOneByGitCode($giftCode);
     }
+    public function getAllHaveGitCode()
+    {
+        return $this->repository->getAllHaveGitCode();
+    }
 }

@@ -33,7 +33,6 @@ class SendMailService implements ISendMailService
                 'totalDay'
             ),
             function ($email) use ($mailRecive) {
-                var_dump($mailRecive);
                 $email->subject('Thông báo từ hệ thống đặt phòng online - Finder');
                 $email->to($mailRecive);
             }

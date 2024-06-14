@@ -13,4 +13,8 @@ class MessageService extends BaseService implements IMessageService
     {
         parent::__construct($repository);
     }
+    public function getAllbyUserId($id)
+    {
+        return $this->repository->getAllbyUserId($id);
+    }
 }

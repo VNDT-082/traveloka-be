@@ -11,4 +11,9 @@ class BookingHotelRepository extends BaseRepository implements IBookingHotelRepo
     {
         parent::__construct($model);
     }
+    public function getListByUserId($id)
+    {
+        return $this->model::with(['room', 'room.typeroom', 'room.typeroom.hotel'])
+            ->where('GuestId', '=', $id)->get();
+    }
 }

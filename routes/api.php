@@ -13,8 +13,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\BookingHotel_Controller;
 use App\Http\Controllers\API\Districts_Controller;
+use App\Http\Controllers\API\Message_Controller;
 use App\Http\Controllers\API\Poster_Controller;
 use App\Http\Controllers\API\Provinces_Controller;
 use App\Http\Controllers\API\RateHotel_Controller;
@@ -29,9 +29,14 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+//Dang ky message
+Route::prefix('message')->group(function () {
+    Route::get('get-all-by-user-id', [Message_Controller::class, 'getAllbyUserId'])->name('message.getAllbyUserId');
+});
 //Dang ky booking hotel
 Route::prefix('booking-hotel')->group(function () {
     Route::post('add-new-booking', [BookingHotel_Controller::class, 'store'])->name('bookingHotel.addNewBooking');
+    Route::get('get-list-booking-by-guest-id', [BookingHotel_Controller::class, 'getListByUserId'])->name('bookingHotel.getListByUserId');
 });
 
 
@@ -48,6 +53,8 @@ Route::prefix('poster')->group(function () {
         ->name('poster.getOneByGitCode');
     Route::get('get-one-by-id', [Poster_Controller::class, 'getOneById'])
         ->name('poster.getOneById');
+    Route::get('get-all-have-giftcode', [Poster_Controller::class, 'getAllHaveGitCode'])
+        ->name('poster.getAllHaveGitCode');
 });
 
 
@@ -57,6 +64,9 @@ Route::prefix('hotel')->group(function () {
 
     //param: page
     Route::get('get-page', [Hotel_Controller::class, 'paginate'])->name('hotel.getPage');
+
+
+    Route::get('get-top-ten-new', [Hotel_Controller::class, 'getTop10New'])->name('hotel.getTop10New');
 
     //param: id
     Route::get('get-one-by-id', [Hotel_Controller::class, 'show'])->name('hotel.getOneById');

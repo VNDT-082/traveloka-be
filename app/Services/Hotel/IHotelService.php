@@ -16,4 +16,5 @@ interface IHotelService extends IBaseService
     );
     public function getListByProvinceId($id);
     public function getTop5ByProvinceId($id);
+    public function getTop10New();
 }
