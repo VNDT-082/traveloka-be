@@ -140,7 +140,6 @@ class RoomController extends Controller
     {
         $id_hotel = $request->id;
 
-        // Truy vấn chính: lấy dữ liệu phòng, loại phòng và khách sạn
         $data = DB::table('room')
             ->select([
                 'room.*',
@@ -176,12 +175,24 @@ class RoomController extends Controller
             ->get()
             ->groupBy('BookHotelId');
 
+        $guestIds = $bookingData->flatMap(function ($bookings) {
+            return $bookings->pluck('GuestId');
+        })->toArray();
+
+        $guestData = DB::table('guest')
+            ->whereIn('id', $guestIds)
+            ->get()
+            ->keyBy('id');
+
         foreach ($data as $room) {
             if (isset($bookingData[$room->id])) {
                 foreach ($bookingData[$room->id] as $booking) {
                     $booking->members = isset($memberBookingData[$booking->id])
                         ? $memberBookingData[$booking->id]
                         : [];
+                    $booking->guest_name = isset($guestData[$booking->GuestId])
+                        ? $guestData[$booking->GuestId]->Name
+                        : null;
                 }
                 $room->booking = $bookingData[$room->id];
             } else {
@@ -194,7 +205,38 @@ class RoomController extends Controller
     }
 
 
+    public function updateStateRoom(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $state = $request->State;
 
+            $updated_at = now();
+
+            $room = DB::table('room')->where('id', $id)->first();
+            if (!$room) {
+                return response()->json(['error' => 'Room not found'], 404);
+            }
+
+            DB::table('room')
+                ->where('id', $id)
+                ->update([
+                    'State' => $state,
+                    'updated_at' => $updated_at,
+                ]);
+
+            return response()->json([
+                'message' => 'Room state updated successfully',
+                'id' => $id,
+                'State' => $state,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json(
+                ['error' => $e->getMessage()],
+                500
+            );
+        }
+    }
 
     public function updateRoom(Request $request)
     {
@@ -290,6 +332,7 @@ class RoomController extends Controller
                             });
                     });
             })
+            ->leftJoin('guest', 'bookinghotel.GuestId', '=', 'guest.id')
             ->select([
                 'room.id AS room_id',
                 'room.RoomName AS room_name',
@@ -300,7 +343,10 @@ class RoomController extends Controller
                 'bookinghotel.GuestId',
                 'bookinghotel.TimeRecive AS check_in_date',
                 'bookinghotel.TimeLeave AS check_out_date',
-                'bookinghotel.State AS booking_status'
+                'bookinghotel.State AS booking_status',
+                'guest.Name AS guest_name',
+                'guest.Email AS guest_email',
+                'guest.Telephone AS guest_phone'
             ])
             ->where('hotel.id', $hotelId)
             ->get();
@@ -318,16 +364,14 @@ class RoomController extends Controller
                 ];
             }
 
-            $status = 'Available';
             if ($room->booking_id) {
-                $status = 'Booked';
                 $availabilityData[$room->room_id]['availability'][] = [
                     'booking_id' => $room->booking_id,
                     'guest_id' => $room->GuestId,
+
                     'check_in_date' => $room->check_in_date,
                     'check_out_date' => $room->check_out_date,
                     'booking_status' => $room->booking_status,
-                    'status' => $status
                 ];
             }
         }

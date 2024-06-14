@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\API\BookingHotel_Controller;
 use App\Http\Controllers\API\DiaDiemLanCan_Controller;
 use App\Http\Controllers\API\Guest_Controller;
 use App\Http\Controllers\API\Hotel_Controller;
@@ -19,9 +18,10 @@ use App\Http\Controllers\API\Poster_Controller;
 use App\Http\Controllers\API\Provinces_Controller;
 use App\Http\Controllers\API\RateHotel_Controller;
 use App\Http\Controllers\API\Wards_Controller;
+use App\Http\Controllers\API\CommentController;
 
 use App\Http\Controllers\API\Staff_Controller;
-
+use App\Http\Controllers\API\UserController;
 use App\Services\BookingHotel\BookingHotelService;
 
 
@@ -87,6 +87,11 @@ Route::put('/update-state-booking', [BookingHotel_Controller::class, 'updateStat
 Route::put('/cancel-booking', [BookingHotel_Controller::class, 'cancelBooking']);
 
 
+// Customer management
+Route::get('/get-customer-today', [BookingHotel_Controller::class, 'getCustomerToday']);
+Route::get('/get-frequent-guests', [BookingHotel_Controller::class, 'getFrequentGuests']);
+
+
 
 
 //Address
@@ -101,6 +106,7 @@ Route::post('/room/insert-room', [RoomController::class, 'insertRoom']);
 Route::get('/room/select-room', [RoomController::class, 'selectRoom']);
 Route::put('/room/update-room', [RoomController::class, 'updateRoom']);
 Route::get('/room/room-availability', [RoomController::class, 'getRoomAvailability']);
+Route::put('/room/update-state-room', [RoomController::class, 'updateStateRoom']);
 
 //TypeRoom
 Route::post('/room/insert-typeroom', [HotelController::class, 'insertTyperoom']);
@@ -119,6 +125,18 @@ Route::post('/login-phone', [AuthController::class, 'loginWithPhone']);
 Route::get('/me', [AuthController::class, 'getMe']);
 Route::post('/update-user-info', [AuthController::class, 'updateUserInfo']);
 Route::get('/get-user-info', [AuthController::class, 'getUserInfo']);
+
+//Info Staff Managament
+
+Route::get('/get-full-info-user-staff', [UserController::class, 'getFullInfoUser']);
+Route::post('/update-full-info-user-staff', [UserController::class, 'updateUserInfo']);
+Route::post('/changePassword', [UserController::class, 'changePassword']);
+
+
+// Comments managment
+Route::get('/get-comments-hotel', [CommentController::class, 'getCommentByIdHotel']);
+
+
 
 
 // Administrator Hotel Login
