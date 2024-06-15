@@ -78,6 +78,8 @@ Route::prefix('hotel')->group(function () {
     Route::put('/update-hotel', [HotelController::class, 'updateHotel']);
 
     Route::get('/get-renvenu', [HotelController::class, 'getRevenue']);
+
+    Route::post('/insert-neighborhook', [HotelController::class, 'insertNeighborhook']);
 });
 //Booking
 
