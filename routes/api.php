@@ -19,6 +19,7 @@ use App\Http\Controllers\API\Provinces_Controller;
 use App\Http\Controllers\API\RateHotel_Controller;
 use App\Http\Controllers\API\Wards_Controller;
 use App\Http\Controllers\API\CommentController;
+use App\Http\Controllers\API\SupperAdminController;
 
 use App\Http\Controllers\API\Staff_Controller;
 use App\Http\Controllers\API\UserController;
@@ -138,6 +139,14 @@ Route::post('/changePassword', [UserController::class, 'changePassword']);
 // Comments managment
 Route::get('/get-comments-hotel', [CommentController::class, 'getCommentByIdHotel']);
 
+//Super admin management
+
+Route::get('/user-registrations', [SupperAdminController::class, 'getUserRegistrationsByMonth']);
+Route::get('/get-top-hotels-by-revenue', [SupperAdminController::class, 'getTopHotelsByRevenue']);
+Route::get('/get-total-register-by-type', [SupperAdminController::class, 'getTotalRegisterByType']);
+Route::get('/get-current-month-bookings', [SupperAdminController::class, 'getCurrentMonthBookings']);
+Route::get('/get-user-staff-registrations', [SupperAdminController::class, 'getHotelRegisterByMonth']);
+Route::get('/get-statistics-by-month', [SupperAdminController::class, 'getStatistics']);
 
 
 

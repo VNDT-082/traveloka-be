@@ -52,6 +52,9 @@ class AuthController extends Controller
 
             $randomIdStaff = "SF" . $currentDateTime;
 
+            $randomIdGuest = "GU" . $currentDateTime;
+
+
             $existingUser = DB::table('users')->where('email', $request->email)->first();
             if ($existingUser) {
                 return response()->json(['errors' => 'Email đã được đăng ký'], 202);
@@ -65,7 +68,7 @@ class AuthController extends Controller
                 $radomcccd .= mt_rand(0, 9);
             }
 
-            $sql = "INSERT INTO users (id , name, email, password, Telephone, Type) VALUES (?,?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO users (id, name, email, password, Telephone, Type, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
             DB::insert($sql, [
                 $randomIdAccount,
                 $request->name,
@@ -73,10 +76,11 @@ class AuthController extends Controller
                 Hash::make($request->password),
                 $request->Telephone,
                 $request->Type,
+                now()
             ]);
 
             if ($request->Type === 'Staff') {
-                $sql = "INSERT INTO staff (id, UserAccountId, Email, Telephone, Name, CCCD, Sex, Type) VALUES (?,?, ?, ?, ?, ?,?,?)";
+                $sql = "INSERT INTO staff (id, UserAccountId, Email, Telephone, Name, CCCD, Sex, Type, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 DB::insert($sql, [
                     $randomIdStaff,
                     $randomIdAccount,
@@ -86,8 +90,25 @@ class AuthController extends Controller
                     $radomcccd,
                     "1",
                     $request->Type,
+                    now()
                 ]);
             }
+
+            if ($request->Type === 'Guest') {
+                $sql = "INSERT INTO guest (id, UserAccountId, Email, Telephone, Name, CCCD, Sex, Type, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                DB::insert($sql, [
+                    $randomIdStaff,
+                    $randomIdAccount,
+                    $request->email,
+                    $request->Telephone,
+                    $request->name,
+                    $radomcccd,
+                    "1",
+                    $request->Type,
+                    now()
+                ]);
+            }
+
 
             return response()->json(['message' => 'User registered successfully'], 200);
         } catch (Exception $e) {
