@@ -48,7 +48,7 @@ class HotelRepository extends BaseRepository implements IHotelRepository
 
     public function getById($id)
     {
-        $model = parent::with(['images', 'convenients', 'policies', 'typeRooms', 'rates', 'rates.guest', 'province'])
+        $model = parent::with(['images', 'convenients', 'policies', 'typeRooms', 'typeRooms.room', 'rates', 'rates.guest', 'province'])
             ->where('id', '=', $id)->first();
         // if ($model instanceof Hotel_Model) {
         //     //lay danh sach hinh anh cua phong
