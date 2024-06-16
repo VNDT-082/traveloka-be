@@ -588,4 +588,52 @@ class HotelController extends Controller
         // Trả về dữ liệu response
         return response()->json($response, 200);
     }
+
+    public function insertNeighborhook(Request $request)
+    {
+        $data = $request->only(['id_hotel', 'name', 'category', 'is_popular', 'distance']);
+
+        $validator = Validator::make($data, [
+            'id_hotel' => 'required|string',
+            'name' => 'required|string',
+            'category' => 'required|string',
+            'distance' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        $categoryIcons = [
+            'Mua sắm & quà lưu niệm' => 'shopping_area.png',
+            'Nhà hàng' => 'restaurant.png',
+            'Khu vui chơi' => 'entertainment_area.png',
+            'Điểm nút giao thông' => 'shopping_area.png',
+            'Giáo dục' => 'restaurant.png',
+            'Công viên sở thú' => 'entertainment_area.png',
+            'Khác' => 'entertainment_area.png',
+        ];
+
+        if (array_key_exists($data['category'], $categoryIcons)) {
+            $data['icon'] = $categoryIcons[$data['category']];
+        }
+        $currentDateTime = date("YmdHis");
+        $insert = DB::table('diadiemlancan')->insert([
+            'id' =>    "NB" . $currentDateTime . rand(0, 9999),
+            'HotelId' => $data['id_hotel'],
+            'Name' => $data['name'],
+            'Category' => $data['category'],
+            'IsPopular' => (empty($data['is_popular'] ? 0 :  $data['is_popular'])),
+            'ImageIcon' => $data['icon'],
+            'Distance' => $data['distance'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        if ($insert) {
+            return response()->json(['success' => 'Data inserted successfully'], 200);
+        } else {
+            return response()->json(['error' => 'Failed to insert data'], 500);
+        }
+    }
 }

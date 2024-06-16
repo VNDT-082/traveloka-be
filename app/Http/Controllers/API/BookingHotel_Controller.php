@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 
+use Illuminate\Support\Facades\Log;
+
 
 class BookingHotel_Controller extends Controller
 {
@@ -211,16 +213,14 @@ class BookingHotel_Controller extends Controller
                 'b.TimeRecive AS check_in_date',
                 'b.TimeLeave AS check_out_date',
                 'b.CreateDate AS created_at',
-                DB::raw('CASE 
-            WHEN b.State = 0 THEN "Chờ xác nhận" 
-            WHEN b.State = 1 THEN "Đã xác nhận" 
-            WHEN b.State = 2 THEN "Đang ở" 
-            WHEN b.State = 3 THEN "Checked out"
-            WHEN b.State = 4 THEN "Yêu cầu hủy" 
-            WHEN b.State = 5 THEN "Đã hủy" 
-            ELSE "Đã thanh toán"
-            END AS booking_status '),
-                'mb.member_count', // Di chuyển 'member_count' xuống đây
+                'b.cancellation_reason as cancel_reason',
+                'b.TypePay as payment',
+                'b.VAT as VAT',
+                'GiftCodePrice as code_price',
+                'b.GiftCode as gift',
+                'b.Notes as note',
+                'b.State as booking_status',
+                'mb.member_count',
             ])
             ->where('t.HotelId', '=', $hotelId)
             ->groupBy(
@@ -235,6 +235,12 @@ class BookingHotel_Controller extends Controller
                 'b.State',
                 'b.CreateDate',
                 'b.Price',
+                'b.cancellation_reason',
+                'b.TypePay',
+                'b.VAT',
+                'GiftCodePrice',
+                'b.GiftCode',
+                'b.Notes',
                 'mb.member_count' // Thêm 'mb.member_count' vào danh sách nhóm
             )
             ->get();
@@ -263,6 +269,54 @@ class BookingHotel_Controller extends Controller
 
         return response()->json($query, 200);
     }
+
+    public function createBooking(Request $request)
+    {
+        Log::info('createBooking method called.');
+
+
+
+
+        $currentDateTime = date("YmdHis") . substr((string)microtime(true), 2, 6);
+        $randomId = "BK" . $currentDateTime . rand(0, 9999);
+
+        Log::info('Random Booking ID generated.', ['booking_id' => $randomId]);
+
+        $bookingId = DB::table('bookinghotel')->insert([
+            'id' => $randomId,
+            'RoomId' => $request['room_id'],
+            'GuestId' => $request['guest_id'],
+            'TimeRecive' => $request['time_recive'],
+            'TimeLeave' => $request['time_leave'],
+            'State' => $request['state'],
+            'Price' => $request['price'],
+            'CreateDate' => now(),
+            'created_at' => now()
+        ]);
+
+
+
+        Log::info('Booking created successfully.', ['booking_id' => $bookingId]);
+
+        foreach ($request['members'] as $member) {
+            $randomIdMember = "MB" . date("YmdHis") . substr((string)microtime(true), 2, 6) . rand(0, 9999);
+            $inserted = DB::table('memberbookhotel')->insert([
+                'id' => $randomIdMember,
+                'BookHotelId' => $randomId,
+                'FullName' => $member['name']
+            ]);
+
+
+            Log::info('Member inserted successfully.', ['member_id' => $randomIdMember]);
+        }
+
+        DB::commit();
+
+        Log::info('Transaction committed successfully.');
+
+        return response()->json(['message' => 'Booking created successfully'], 201);
+    }
+
 
     public function updateState(Request $request)
     {
@@ -323,8 +377,6 @@ class BookingHotel_Controller extends Controller
 
     public function cancelBooking(Request $request)
     {
-
-
         $bookingId = $request->input('booking_id');
 
         DB::beginTransaction();
@@ -383,5 +435,80 @@ class BookingHotel_Controller extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getCustomerToday(Request $request)
+    {
+        $today = Carbon::now();
+        $hotelId = $request->input('idHotel');
+
+        $bookings = DB::table('bookinghotel')
+            ->join('guest', 'bookinghotel.GuestId', '=', 'guest.id')
+            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
+            ->join('typeroom', 'room.TypeRoomId', '=', 'typeroom.id')
+            ->join('memberbookhotel', 'bookinghotel.id', '=', 'memberbookhotel.BookHotelId')
+            ->select(
+                'guest.Name as guest_name',
+                'guest.Telephone as guest_telephone',
+                'guest.CCCD as guest_cccd',
+                'guest.Sex as guest_sex',
+                'memberbookhotel.FullName as member_name',
+                'memberbookhotel.DateOfBirth as member_dob',
+                'memberbookhotel.Sex as member_sex',
+                'room.RoomName as room_name',
+                'typeroom.Name as type_name',
+                'bookinghotel.TimeRecive as check_in_date',
+                'bookinghotel.TimeLeave as check_out_date',
+                'typeroom.HotelId as hotel_id',
+                'bookinghotel.id as booking_id'
+            )
+            ->where('bookinghotel.TimeRecive', '<=', $today->format('Y-m-d H:i:s'))
+            ->where('bookinghotel.TimeLeave', '>=', $today->format('Y-m-d H:i:s'))
+            ->where('typeroom.HotelId', '=', $hotelId)
+            ->get();
+
+        $groupedBookings = [];
+        foreach ($bookings as $booking) {
+            if (!isset($groupedBookings[$booking->booking_id])) {
+                $groupedBookings[$booking->booking_id] = [
+                    'booking_id' => $booking->booking_id,
+                    'guest_name' => $booking->guest_name,
+                    'guest_telephone' => $booking->guest_telephone,
+                    'guest_cccd' => $booking->guest_cccd,
+                    'guest_sex' => $booking->guest_sex,
+                    'room_name' => $booking->room_name,
+                    'type_name' => $booking->type_name,
+                    'check_in_date' => $booking->check_in_date,
+                    'check_out_date' => $booking->check_out_date,
+                    'members' => []
+                ];
+            }
+
+            $groupedBookings[$booking->booking_id]['members'][] = [
+                'member_name' => $booking->member_name,
+                'member_dob' => $booking->member_dob,
+                'member_sex' => $booking->member_sex
+            ];
+        }
+
+        return response()->json(array_values($groupedBookings), 200);
+    }
+
+    public function getFrequentGuests(Request $request)
+    {
+        $idhotel = $request->input('idHotel');
+
+        $guests = DB::table('bookinghotel')
+            ->join('guest', 'bookinghotel.GuestId', '=', 'guest.id')
+            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
+            ->join('typeroom', 'room.TypeRoomId', '=', 'typeroom.id')
+            ->where('typeroom.HotelId', '=', $idhotel)
+            ->select('guest.id', 'guest.Name as guest_name', 'guest.Email as guest_email', 'guest.Telephone as guest_telephone')
+            ->selectRaw('COUNT(bookinghotel.GuestId) as booking_count')
+            ->groupBy('guest.id', 'guest.Name', 'guest.Email', 'guest.Telephone')
+            ->having('booking_count', '>', 3)
+            ->get();
+
+        return response()->json($guests, 200);
     }
 }
