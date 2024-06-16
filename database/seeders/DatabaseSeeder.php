@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
             // HotelSeeder::class,
             // TyperoomSeeder::class,
             // RoomSeeder::class,
-            // BookingSeeder::class,
-            SeedListStaffTable::class
+            BookingSeeder::class,
+            //SeedListStaffTable::class
         ]);
     }
 }

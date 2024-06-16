@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class SupperAdminController extends Controller
 {
@@ -230,5 +231,59 @@ class SupperAdminController extends Controller
         } catch (Exception $e) {
             return response()->json(['error' => 'Failed to fetch data', 'message' => $e->getMessage()], 500);
         }
+    }
+    public function getProvinceCounts()
+    {
+        $hotels = DB::table('hotel')->select('Address')->get();
+        $provinceCounts = [];
+
+        foreach ($hotels as $hotel) {
+            $addressParts = explode(',', $hotel->Address);
+            $province = trim(end($addressParts));
+
+            if (isset($provinceCounts[$province])) {
+                $provinceCounts[$province]++;
+            } else {
+                $provinceCounts[$province] = 1;
+            }
+        }
+
+        arsort($provinceCounts);
+
+        return response()->json($provinceCounts, 200);
+    }
+
+
+    public function getTopProvinceBooking()
+    {
+        $bookings = DB::table('bookinghotel as b')
+            ->join('room as r', 'b.RoomId', '=', 'r.id')
+            ->join('typeroom as tr', 'r.TypeRoomId', '=', 'tr.id')
+            ->join('hotel as h', 'tr.hotelId', '=', 'h.id')
+            ->select('h.Name', 'h.Address', 'h.id', DB::raw('COUNT(b.id) as BookingCount'))
+            ->groupBy('h.Name', 'h.Address', 'h.id')
+            ->get();
+
+        $provinceCounts = [];
+
+        foreach ($bookings as $hotel) {
+            $addressParts = explode(',', $hotel->Address);
+            $province = trim(end($addressParts));
+
+            if (isset($provinceCounts[$province])) {
+                $provinceCounts[$province] += $hotel->BookingCount;
+            } else {
+                $provinceCounts[$province] = $hotel->BookingCount;
+            }
+        }
+        $provinceCountsArray = [];
+        foreach ($provinceCounts as $province => $count) {
+            $provinceCountsArray[] = [
+                'province' => $province,
+                'booking_count' => $count,
+            ];
+        }
+
+        return response()->json($provinceCountsArray, 200);
     }
 }

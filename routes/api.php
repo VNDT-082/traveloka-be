@@ -147,6 +147,8 @@ Route::get('/get-total-register-by-type', [SupperAdminController::class, 'getTot
 Route::get('/get-current-month-bookings', [SupperAdminController::class, 'getCurrentMonthBookings']);
 Route::get('/get-user-staff-registrations', [SupperAdminController::class, 'getHotelRegisterByMonth']);
 Route::get('/get-statistics-by-month', [SupperAdminController::class, 'getStatistics']);
+Route::get('/get-province-counts', [SupperAdminController::class, 'getProvinceCounts']);
+Route::get('/get-top-province-booking', [SupperAdminController::class, 'getTopProvinceBooking']);
 
 
 
