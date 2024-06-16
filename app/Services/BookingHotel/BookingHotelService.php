@@ -13,4 +13,8 @@ class BookingHotelService extends BaseService implements IBookingHotelService
     {
         parent::__construct($repository);
     }
+    public function getListByUserId($id)
+    {
+        return $this->repository->getListByUserId($id);
+    }
 }

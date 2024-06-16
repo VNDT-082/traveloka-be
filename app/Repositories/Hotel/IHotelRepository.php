@@ -16,4 +16,5 @@ interface IHotelRepository extends IBaseRepository
     );
     public function getListByProvinceId($id);
     public function getTop5ByProvinceId($id);
+    public function getTop10New();
 }

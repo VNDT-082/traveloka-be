@@ -8,4 +8,5 @@ interface IPosterRepository extends IBaseRepository
 {
     public function getOneById($id);
     public function getOneByGitCode($giftCode);
+    public function getAllHaveGitCode();
 }

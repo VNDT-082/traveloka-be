@@ -11,4 +11,8 @@ class MessageRepository extends BaseRepository implements IMessageRepository
     {
         parent::__construct($model);
     }
+    public function getAllbyUserId($id)
+    {
+        return $this->model::where('ToHotelOrGuestId', 'like', $id)->get();
+    }
 }

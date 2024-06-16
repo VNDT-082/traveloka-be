@@ -1,4 +1,10 @@
 <?php
+class VNPayService
+{
+    public static function vnpay_create_payment()
+    {
+    }
+}
 error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 
@@ -37,36 +43,22 @@ $vnp_Inv_Address = $_POST['txt_inv_addr1'];
 $vnp_Inv_Company = $_POST['txt_inv_company'];
 $vnp_Inv_Taxcode = $_POST['txt_inv_taxcode'];
 $vnp_Inv_Type = $_POST['cbo_inv_type'];
+
 $inputData = array(
     "vnp_Version" => "2.1.0",
     "vnp_TmnCode" => $vnp_TmnCode,
-    "vnp_Amount" => $vnp_Amount,
+    "vnp_Amount" => $vnp_Amount * 100,
     "vnp_Command" => "pay",
     "vnp_CreateDate" => date('YmdHis'),
     "vnp_CurrCode" => "VND",
     "vnp_IpAddr" => $vnp_IpAddr,
     "vnp_Locale" => $vnp_Locale,
-    "vnp_OrderInfo" => $vnp_OrderInfo,
-    "vnp_OrderType" => $vnp_OrderType,
+    "vnp_OrderInfo" => "Thanh toan GD:" . $vnp_TxnRef,
+    "vnp_OrderType" => "other",
     "vnp_ReturnUrl" => $vnp_Returnurl,
     "vnp_TxnRef" => $vnp_TxnRef,
-    "vnp_ExpireDate" => $vnp_ExpireDate,
-    "vnp_Bill_Mobile" => $vnp_Bill_Mobile,
-    "vnp_Bill_Email" => $vnp_Bill_Email,
-    "vnp_Bill_FirstName" => $vnp_Bill_FirstName,
-    "vnp_Bill_LastName" => $vnp_Bill_LastName,
-    "vnp_Bill_Address" => $vnp_Bill_Address,
-    "vnp_Bill_City" => $vnp_Bill_City,
-    "vnp_Bill_Country" => $vnp_Bill_Country,
-    "vnp_Inv_Phone" => $vnp_Inv_Phone,
-    "vnp_Inv_Email" => $vnp_Inv_Email,
-    "vnp_Inv_Customer" => $vnp_Inv_Customer,
-    "vnp_Inv_Address" => $vnp_Inv_Address,
-    "vnp_Inv_Company" => $vnp_Inv_Company,
-    "vnp_Inv_Taxcode" => $vnp_Inv_Taxcode,
-    "vnp_Inv_Type" => $vnp_Inv_Type
+    "vnp_ExpireDate" => $expire
 );
-
 if (isset($vnp_BankCode) && $vnp_BankCode != "") {
     $inputData['vnp_BankCode'] = $vnp_BankCode;
 }

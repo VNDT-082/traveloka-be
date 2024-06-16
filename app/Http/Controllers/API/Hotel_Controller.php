@@ -8,6 +8,7 @@ use App\Services\Hotel\IHotelService;
 use App\Services\ImagesHotel\IImagesHotelService;
 use App\Services\RateHotel\IRateHotelService;
 use App\Services\TypeRoom\ITypeRoomService;
+use Exception;
 use Illuminate\Http\Request;
 
 class Hotel_Controller extends Controller
@@ -132,7 +133,7 @@ class Hotel_Controller extends Controller
         $totalmember = 0;
         $totalmemberchild = 0;
         $timereceive = date('Y-m-d');
-        $totalroom = 0;
+        $totalroom = 1;
         if ($request->query('province'))
             $province = $request->query('province');
         if ($request->query('totalnight'))
@@ -180,5 +181,35 @@ class Hotel_Controller extends Controller
         }
         return $response ? ['status' => 200, 'result' => $response]
             : ['status' => 200, 'result' => 'NOT_FOUND'];
+    }
+
+    public function getTop10New()
+    {
+        try {
+            $response = $this->IHotelService->getTop10New();
+            foreach ($response as $item) {
+                $hImageAvt = $this->IImagesHotelService->getAvartaByHotelId($item->id);
+                $arrImg = $this->IImagesHotelService->getTop3ImageByHotelId($item->id);
+                $arr = array();
+                array_push($arr, $hImageAvt);
+                foreach ($arrImg as $iImg) {
+                    array_push($arr, $iImg);
+                }
+                $item->images = $arr;
+
+                $convenientHotel = $this->IConvenientHotelService->getListByHotelId($item->id);
+                $item->convenients = $convenientHotel;
+
+                $rateHotel = $this->IRateHotelService->getListByHotelId($item->id);
+                $item->rates = $rateHotel;
+
+                $typeRooms = $this->ITypeRoomService->getListByHotelId($item->id);
+                $item->type_rooms = $typeRooms;
+            }
+            return $response ? ['status' => 200, 'result' => $response]
+                : ['status' => 200, 'result' => 'NOT_FOUND'];
+        } catch (Exception $ex) {
+            return ['status' => 500, 'result' => 'NOT_FOUND'];
+        }
     }
 }

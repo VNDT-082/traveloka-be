@@ -4,6 +4,7 @@ namespace App\Repositories\Poster;
 
 use App\Models\Poster_Model;
 use App\Repositories\BaseRepository;
+use Carbon\Carbon;
 
 class PosterRepository extends BaseRepository implements IPosterRepository
 {
@@ -19,5 +20,12 @@ class PosterRepository extends BaseRepository implements IPosterRepository
     {
         return $this->model->where('GiftCode', '=', $giftCode)->first(); //::where('GiftCode', '<>', null)
 
+    }
+    public function getAllHaveGitCode()
+    {
+        return $this->model->where('HaveGitCode', '=', 1)
+            ->where('PosterIsUse', '=', 1)
+            ->where('EndDate', '>', Carbon::now())
+            ->get();
     }
 }

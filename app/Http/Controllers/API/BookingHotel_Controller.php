@@ -15,8 +15,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Mockery\Undefined;
-use Symfony\Component\VarDumper\VarDumper;
 
 use App\Mail\BookingConfirmation;
 use App\Mail\BookingCancellation;
@@ -26,6 +24,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+
 use Illuminate\Support\Facades\Log;
 
 
@@ -55,6 +54,16 @@ class BookingHotel_Controller extends Controller
     public function index()
     {
         //
+    }
+
+    public function getListByUserId(Request $request)
+    {
+        if ($request->query('id')) {
+            $id = $request->query('id');
+            $response = $this->IBookingHotelService->getListByUserId($id);
+            return $response ? ['status' => 200, 'result' => $response]
+                : ['status' => 200, 'result' => 'NOT_FOUND'];
+        }
     }
 
     /**
@@ -96,24 +105,25 @@ class BookingHotel_Controller extends Controller
             DB::beginTransaction();
             $result = $this->IBookingHotelService->create($validatedData);
             if ($result) {
-                if (count($validatedDataMember['members']) > 0) {
-                    for ($i = 0; $i < count($validatedDataMember['members']); $i++) {
-                        $member = $validatedDataMember['members'][$i];
-                        var_dump($member);
-                        if (isset($member['DateOfBirth'])) {
-                            $DateOfBirth = new DateTime($member['DateOfBirth']);
-                            $member['DateOfBirth'] = $DateOfBirth->format('Y-m-d');
+                if (isset($validatedDataMember['members'])) {
+                    if (count($validatedDataMember['members']) > 0) {
+                        for ($i = 0; $i < count($validatedDataMember['members']); $i++) {
+                            $member = $validatedDataMember['members'][$i];
+                            if (isset($member['DateOfBirth'])) {
+                                $DateOfBirth = new DateTime($member['DateOfBirth']);
+                                $member['DateOfBirth'] = $DateOfBirth->format('Y-m-d');
+                            }
+                            $memberData = [
+                                'id' => $member['id'],
+                                'BookHotelId' =>  $result['id'],
+                                'DateOfBirth' => $member['DateOfBirth'],
+                                'FullName' => $member['FullName'],
+                                'Sex' => $member['Sex'] ? 1 : 0,
+                                'created_at' => $member['created_at'],
+                                'updated_at' => $member['updated_at']
+                            ];
+                            $result_member = $this->IMemberBookHotelService->create($memberData);
                         }
-                        $memberData = [
-                            'id' => $member['id'],
-                            'BookHotelId' =>  $result['id'],
-                            'DateOfBirth' => $member['DateOfBirth'],
-                            'FullName' => $member['FullName'],
-                            'Sex' => $member['Sex'] ? 1 : 0,
-                            'created_at' => $member['created_at'],
-                            'updated_at' => $member['updated_at']
-                        ];
-                        $result_member = $this->IMemberBookHotelService->create($memberData);
                     }
                 }
             }

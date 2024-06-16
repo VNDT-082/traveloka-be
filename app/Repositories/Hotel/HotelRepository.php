@@ -48,7 +48,7 @@ class HotelRepository extends BaseRepository implements IHotelRepository
 
     public function getById($id)
     {
-        $model = parent::with(['images', 'convenients', 'policies', 'typeRooms', 'rates', 'rates.guest', 'province'])
+        $model = parent::with(['images', 'convenients', 'policies', 'typeRooms', 'typeRooms.room', 'rates', 'rates.guest', 'province'])
             ->where('id', '=', $id)->first();
         // if ($model instanceof Hotel_Model) {
         //     //lay danh sach hinh anh cua phong
@@ -68,7 +68,7 @@ class HotelRepository extends BaseRepository implements IHotelRepository
     }
     public function getTop5ByProvinceId($id)
     {
-        return $this->model::with(['typeRooms'])->where('Province_Id', '=', $id)->take(5)->get();
+        return $this->model::with(['typeRooms', 'typeRooms.room'])->where('Province_Id', '=', $id)->take(5)->get();
     }
 
     public function search(
@@ -110,5 +110,9 @@ class HotelRepository extends BaseRepository implements IHotelRepository
 ,hotel.IsActive,hotel.TimeCheckIn,hotel.TimeCheckOut,hotel.created_at,hotel.updated_at,hotel.Type,hotel.StarRate,hotel.Province_Id";
         $hotels = DB::select($query);
         return $hotels;
+    }
+    public function getTop10New()
+    {
+        return $this->model::with(['typeRooms', 'typeRooms.room'])->latest()->limit(10)->get();
     }
 }

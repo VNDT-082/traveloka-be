@@ -37,4 +37,8 @@ class HotelService extends BaseService implements IHotelService
     {
         return $this->repository->getTop5ByProvinceId($id);
     }
+    public function getTop10New()
+    {
+        return $this->repository->getTop10New();
+    }
 }

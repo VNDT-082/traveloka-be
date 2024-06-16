@@ -36,4 +36,8 @@ class BookingHotel_Model extends Model
     {
         return $this->hasMany(Guest_Model::class, 'BookHotelId', 'id');
     }
+    public function room()
+    {
+        return $this->hasOne(Room_Model::class, 'id', 'RoomId');
+    }
 }
