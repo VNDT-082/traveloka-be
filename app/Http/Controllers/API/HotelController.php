@@ -515,6 +515,7 @@ class HotelController extends Controller
                 ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
                 ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
                 ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
+                ->where('typeroom.HotelId', '=', $idHotel)
                 ->whereBetween('bookinghotel.CreateDate', [$from, $to])
                 ->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'))
                 ->pluck('revenue')
@@ -526,6 +527,9 @@ class HotelController extends Controller
             ];
         }
         $revenueThisMonth = DB::table('bookinghotel')
+            ->join('room', 'bookinghotel.RoomId', '=', 'room.id')
+            ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
+            ->where('typeroom.HotelId', '=', $idHotel)
             ->whereBetween('bookinghotel.CreateDate', [$currentMonthStart, $currentMonthEnd])
             ->sum('bookinghotel.Price');
 
@@ -545,6 +549,7 @@ class HotelController extends Controller
             ->join('typeroom', 'room.TyperoomId', '=', 'typeroom.Id')
             ->join('hotel', 'typeroom.HotelId', '=', 'hotel.id')
             ->select(DB::raw('COALESCE(SUM(bookinghotel.Price), 0) as revenue'))
+            ->where('hotel.id', '=', $idHotel)
             ->addSelect(DB::raw('typeroom.Name as room_type'))
             ->addSelect(DB::raw('COUNT(bookinghotel.id) as bookings_count'))
             ->groupBy('typeroom.Name');
