@@ -605,13 +605,13 @@ class HotelController extends Controller
         }
 
         $categoryIcons = [
-            'Mua sắm & quà lưu niệm' => 'shopping_area.png',
-            'Nhà hàng' => 'restaurant.png',
-            'Khu vui chơi' => 'entertainment_area.png',
-            'Điểm nút giao thông' => 'shopping_area.png',
-            'Giáo dục' => 'restaurant.png',
-            'Công viên sở thú' => 'entertainment_area.png',
-            'Khác' => 'entertainment_area.png',
+            'Mua sắm & quà lưu niệm' => 'MuaSamVaQuaLuuNiem.webp',
+            'Nhà hàng' => 'AmThuc.webp',
+            'Khu vui chơi' => '1554360706660-18b7d8816fe7aa79ad.webp',
+            'Điểm nút giao thông' => 'DiemNutGiaoThong.webp',
+            'Giáo dục' => 'bancong.webp',
+            'Công viên sở thú' => 'DiaDiemCongCong.webp',
+            'Khác' => 'DiaDiemCongCong.webp',
         ];
 
         if (array_key_exists($data['category'], $categoryIcons)) {

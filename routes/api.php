@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\BookingHotel_Controller;
 use App\Http\Controllers\API\Districts_Controller;
 use App\Http\Controllers\API\Message_Controller;
 use App\Http\Controllers\API\Poster_Controller;
@@ -159,6 +160,7 @@ Route::get('/get-user-staff-registrations', [SupperAdminController::class, 'getH
 Route::get('/get-statistics-by-month', [SupperAdminController::class, 'getStatistics']);
 Route::get('/get-province-counts', [SupperAdminController::class, 'getProvinceCounts']);
 Route::get('/get-top-province-booking', [SupperAdminController::class, 'getTopProvinceBooking']);
+Route::get('/get-all-hotel', [SupperAdminController::class, 'getAllHotel']);
 
 
 

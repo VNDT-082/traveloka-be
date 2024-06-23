@@ -253,7 +253,6 @@ class SupperAdminController extends Controller
         return response()->json($provinceCounts, 200);
     }
 
-
     public function getTopProvinceBooking()
     {
         $bookings = DB::table('bookinghotel as b')
@@ -285,5 +284,61 @@ class SupperAdminController extends Controller
         }
 
         return response()->json($provinceCountsArray, 200);
+    }
+
+    public function getAllHotel(Request $request)
+    {
+        try {
+            $registrations = DB::table('hotel')
+                ->join('listStaff', 'hotel.id', '=', 'listStaff.HotelId')
+                ->join('staff', 'listStaff.StaffId', '=', 'staff.id')
+                ->join('users', 'staff.UserAccountId', '=', 'users.id')
+                ->where('users.Type', '=', 'Staff')
+                ->select(
+                    'users.id as user_id',
+                    'users.email as user_email',
+                    'users.name as user_name',
+                    'users.Telephone as user_phone',
+                    'users.created_at as user_created',
+                    'hotel.id as hotel_id',
+                    'hotel.Name as hotel_name',
+                    'hotel.address as hotel_address',
+                    'hotel.Telephone as hotel_phone',
+                    'hotel.Description as hotel_decs',
+                    'hotel.created_at as hotel_created',
+                    'hotel.IsActive as is_active',
+                    DB::raw('(SELECT COUNT(DISTINCT typeroom.id) FROM typeroom WHERE typeroom.HotelId = hotel.id) as total_room_types'),
+                    DB::raw('(SELECT COUNT(room.id) FROM room JOIN typeroom ON room.TypeRoomId = typeroom.id WHERE typeroom.HotelId = hotel.id) as total_rooms')
+                )
+                ->distinct()
+                ->get();
+
+            $registrations->transform(function ($registration) {
+                return (object) [
+                    'user' => (object) [
+                        'id' => $registration->user_id,
+                        'email' => $registration->user_email,
+                        'name' => $registration->user_name,
+                        'phone' => $registration->user_phone,
+                        'created_at' => $registration->user_created,
+                    ],
+                    'hotel' => (object) [
+                        'id' => $registration->hotel_id,
+                        'name' => $registration->hotel_name,
+                        'address' => $registration->hotel_address,
+                        'phone' => $registration->hotel_phone,
+                        'description' => $registration->hotel_decs,
+                        'created_at' => $registration->hotel_created,
+                        'is_active' => $registration->is_active,
+                        'total_room_types' => $registration->total_room_types,
+                        'total_rooms' => $registration->total_rooms,
+                    ],
+                ];
+            });
+
+            return response()->json($registrations, 200);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Failed to fetch data', 'message' => $e->getMessage()], 500);
+        }
     }
 }
