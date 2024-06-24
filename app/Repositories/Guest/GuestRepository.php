@@ -26,6 +26,7 @@ class GuestRepository extends BaseRepository implements IGuestRepository
                 'guest.Avarta',
                 'guest.DateOfBirth',
                 'guest.IsActive',
+                'guest.CCCD',
                 'guest.created_at',
                 'guest.updated_at',
                 'u.email as EmailContact',
