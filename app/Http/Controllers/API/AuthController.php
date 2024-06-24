@@ -32,6 +32,7 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
+
     public function register(Request $request)
     {
 
@@ -97,7 +98,7 @@ class AuthController extends Controller
             if ($request->Type === 'Guest') {
                 $sql = "INSERT INTO guest (id, UserAccountId, Email, Telephone, Name, CCCD, Sex, Type, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 DB::insert($sql, [
-                    $randomIdStaff,
+                    $randomIdGuest,
                     $randomIdAccount,
                     $request->email,
                     $request->Telephone,

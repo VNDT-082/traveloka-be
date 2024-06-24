@@ -136,7 +136,8 @@ class ImageController extends Controller
                 $url = $fileName;
                 $parts = explode('/', $url);
                 $fileName = end($parts);
-                $filePath = storage_path('app/public/images/' . $fileName);
+                //$path = $file->store('images/rate', 'public');
+                $filePath = storage_path('public/images/' . $fileName);
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }
@@ -175,7 +176,7 @@ class ImageController extends Controller
 
             if ($storedPath) {
 
-                $filePath = storage_path('app/public/images/' . $oldNameFile);
+                $filePath = storage_path('public/images/' . $oldNameFile);
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }

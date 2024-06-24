@@ -13,7 +13,6 @@ use App\Services\SendMail\ISendMailService;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 use App\Mail\BookingConfirmation;
@@ -24,9 +23,10 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use function Laravel\Prompts\select;
 
 class BookingHotel_Controller extends Controller
 {
@@ -100,33 +100,60 @@ class BookingHotel_Controller extends Controller
             }
 
             $validatedData['State'] = $validatedData['State'] ? 1 : 0;
-            $validatedDataMember = $request->validate(['members' => 'nullable']);
+            // $validatedDataMember = $request->validate(['members' => 'nullable']);
+            // ---------------------------------------------
+
 
             DB::beginTransaction();
-            $result = $this->IBookingHotelService->create($validatedData);
-            if ($result) {
-                if (isset($validatedDataMember['members'])) {
-                    if (count($validatedDataMember['members']) > 0) {
-                        for ($i = 0; $i < count($validatedDataMember['members']); $i++) {
-                            $member = $validatedDataMember['members'][$i];
-                            if (isset($member['DateOfBirth'])) {
-                                $DateOfBirth = new DateTime($member['DateOfBirth']);
-                                $member['DateOfBirth'] = $DateOfBirth->format('Y-m-d');
-                            }
-                            $memberData = [
-                                'id' => $member['id'],
-                                'BookHotelId' =>  $result['id'],
-                                'DateOfBirth' => $member['DateOfBirth'],
-                                'FullName' => $member['FullName'],
-                                'Sex' => $member['Sex'] ? 1 : 0,
-                                'created_at' => $member['created_at'],
-                                'updated_at' => $member['updated_at']
-                            ];
-                            $result_member = $this->IMemberBookHotelService->create($memberData);
-                        }
+
+            $validatedTotalRoom = $request->validate(['totalRoom' => 'required']);
+            $note = '';
+
+            if ($validatedTotalRoom['totalRoom'] > 1) {
+                $total = $validatedTotalRoom['totalRoom'] - 1;
+                $sql = "SELECT room.id from room WHERE room.State=0 and room.TypeRoomId=
+(SELECT room.TypeRoomId FROM room where room.id='" . $validatedData['RoomId'] . "')
+AND room.id<> '" . $validatedData['RoomId'] . "' LIMIT 0," . $total . "";
+
+
+                $data = DB::select($sql);
+
+                if ($data && count($data) >= $validatedTotalRoom['totalRoom'] - 1) {
+                    foreach ($data as $dataItem) {
+                        $note = $note . $dataItem->id . ";";
+                        $sql = "UPDATE room SET room.TimeRecive='" . $validatedData['TimeRecive']
+                            . "', room.TimeLeave='" . $validatedData['TimeLeave'] . "',State=1 WHERE room.id='" . $dataItem->id . "'";
                     }
+                    $validatedData['Notes'] = $note;
                 }
             }
+
+
+
+            $result = $this->IBookingHotelService->create($validatedData);
+            // if ($result) {
+            //     if (isset($validatedDataMember['members'])) {
+            //         if (count($validatedDataMember['members']) > 0) {
+            //             for ($i = 0; $i < count($validatedDataMember['members']); $i++) {
+            //                 $member = $validatedDataMember['members'][$i];
+            //                 if (isset($member['DateOfBirth'])) {
+            //                     $DateOfBirth = new DateTime($member['DateOfBirth']);
+            //                     $member['DateOfBirth'] = $DateOfBirth->format('Y-m-d');
+            //                 }
+            //                 $memberData = [
+            //                     'id' => $member['id'],
+            //                     'BookHotelId' =>  $result['id'],
+            //                     'DateOfBirth' => $member['DateOfBirth'],
+            //                     'FullName' => $member['FullName'],
+            //                     'Sex' => $member['Sex'] ? 1 : 0,
+            //                     'created_at' => $member['created_at'],
+            //                     'updated_at' => $member['updated_at']
+            //                 ];
+            //                 $result_member = $this->IMemberBookHotelService->create($memberData);
+            //             }
+            //         }
+            //     }
+            // }
             $result_updateStateRoom = $this->IRoomService->updateStateRoom($result['RoomId'], true);
 
             $room = $this->IRoomService->getOneById($result['RoomId']);
