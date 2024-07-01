@@ -167,7 +167,8 @@ Route::get('/get-all-hotel', [SupperAdminController::class, 'getAllHotel']);
 // Administrator Hotel Login
 Route::post('/login-administrator', [AuthController::class, 'loginAdminHotel']);
 // Route::get('/information-administrator', [UserController::class, 'getInfoAdmin']);
-
+// SuperAdministratorLogin
+Route::post('/login-super-administrator', [AuthController::class, 'loginSuperAdmin']);
 
 //Upload
 Route::post('/upload-image', [ImageController::class, 'upload']);

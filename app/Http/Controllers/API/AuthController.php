@@ -390,6 +390,35 @@ class AuthController extends Controller
             return response()->json(['message' => $e], FAILED);
         }
     }
+    public function loginSuperAdmin(Request $request)
+    {
+
+        try {
+            if (empty($request->email) || empty($request->password)) {
+                return response()->json(['errors' => 'Invalid input data'], NOCONTENT);
+            }
+
+            $user = DB::table('users')->where('email', $request->email)->first();
+            if (!$user) {
+                return response()->json(['errors' => 'Email chưa được đăng ký'], EMAIL);
+            }
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json(['errors' => 'Sai mật khẩu'], PASSWORD);
+            }
+            if ($user->Type != 'ADMIN') {
+                return response()->json(['errors' => 'Tài khoản không có quyên truy cập chức năng này'], NOCONTENT);
+            }
+
+            return response()->json([
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name,
+                'Type' => $user->Type,
+            ], SUCESS);
+        } catch (Exception $e) {
+            return response()->json(['message' => $e], FAILED);
+        }
+    }
 
     public function updatePassword(Request $request)
     {
