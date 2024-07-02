@@ -167,26 +167,20 @@ class HotelController extends Controller
                     for ($i = 0; $i < count($images); $i++) {
                         $image = $images[$i];
                         $region = $regions[$i];
-                        //base64_encode(file_get_contents($file->getPathName()))
-                        $filename = time() . '_' . $image->getClientOriginalName();
-                        $image->storeAs('public/images', $filename);
 
-                        $baseUrl = URL::to('/');
-                        $url = Storage::url('public/images/' . $filename);
-                        $fullUrl = $baseUrl . $url;
+                        $path = $image->store('images', 'public');
+                        $fileName = basename($path);
 
                         $id_hotel = $request->input('id_hotel');
                         $id_typeroom = $id;
 
                         $type_room_region = $id_typeroom . ";" . $region;
-
                         $currentDateTime = date("YmdHis");
                         $randomIdImage = "image" . $currentDateTime . rand(0, 9999);
-
                         $res = DB::table('imageshotel')->insert([
                             'id' => $randomIdImage,
                             'HotelId' => $HotelId,
-                            'FileName' => $fullUrl,
+                            'FileName' => $fileName,
                             'TypeRoom' => $type_room_region,
                         ]);
                         if ($res === false) {
@@ -201,11 +195,6 @@ class HotelController extends Controller
                 } else {
                     return response()->json(['message' => 'error'], 500);
                 }
-
-                // return response()->json([
-                //     'id' => $id,
-                //     'hotel_id' => $HotelId,
-                // ], 200);
             } else {
                 if ($typeroom) {
                     return response()->json([
