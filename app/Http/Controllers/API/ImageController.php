@@ -25,19 +25,14 @@ class ImageController extends Controller
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $filename = time() . '_' . $image->getClientOriginalName();
-            $image->storeAs('public/images', $filename);
+            $path = $image->store('images', 'public');
+            $fileName = basename($path);
 
             $id_hotel = $request->input('id_hotel');
             $id_typeroom = $request->input('id_typeroom');
             $region = $request->input('region');
 
             $type_room_region = $id_typeroom . ";" . $region;
-
-            $baseUrl = URL::to('/');
-            $url = Storage::url('public/images/' . $filename);
-            $fullUrl = $baseUrl . $url;
-
 
             $currentDateTime = date("YmdHis");
             $randomIdImage = "image" . $currentDateTime . rand(0, 9999);
@@ -46,7 +41,7 @@ class ImageController extends Controller
             DB::table('imageshotel')->insert([
                 'id' => $randomIdImage,
                 'HotelId' => $id_hotel,
-                'FileName' => $fullUrl,
+                'FileName' => $fileName,
                 'TypeRoom' => $type_room_region,
             ]);
             return response()->json(['message' => $type_room_region], 200);
@@ -80,13 +75,10 @@ class ImageController extends Controller
                 if (count($images) === count($regions)) {
                     for ($i = 0; $i < count($images); $i++) {
                         $image = $images[$i];
-                        $region = $regions[$i];
-                        $filename = time() . '_' . $image->getClientOriginalName();
-                        $image->storeAs('public/images', $filename);
+                        $path = $image->store('images', 'public');
+                        $fileName = basename($path);
 
-                        $baseUrl = URL::to('/');
-                        $url = Storage::url('public/images/' . $filename);
-                        $fullUrl = $baseUrl . $url;
+                        $region = $regions[$i];
 
                         $type_room_region = $typeroom . ";" . $region;
 
@@ -96,7 +88,7 @@ class ImageController extends Controller
                         $res = DB::table('imageshotel')->insert([
                             'id' => $randomIdImage,
                             'HotelId' => $hotel,
-                            'FileName' => $fullUrl,
+                            'FileName' => $fileName,
                             'TypeRoom' => $type_room_region,
                             'created_at' => date("YmdHis")
                         ]);
@@ -163,25 +155,35 @@ class ImageController extends Controller
         $file = $request->file('file');
         $oldNameFile = $request->nameFileOld;
         $idImage = $request->idImage;
+        $hotelId = $request->hotelId;
 
         if ($file instanceof UploadedFile && $file->isValid() && strpos($file->getMimeType(), 'image/') === 0) {
             // Lưu file vào thư mục storage của server
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/images', $filename);
-            $storedPath = $file->storeAs('images', $filename);
+            $path = $file->store('images', 'public');
+            $fileName = basename($path);
 
-            $baseUrl = URL::to('/');
-            $url = Storage::url('public/images/' . $filename);
-            $fullUrl = $baseUrl . $url;
+            if ($fileName) {
 
-            if ($storedPath) {
-
-                $filePath = storage_path('public/images/' . $oldNameFile);
+                $filePath = storage_path('images/' . $oldNameFile);
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }
+                $CoverImageCurrent = DB::table('imageshotel')->where('id', '=', $idImage)->first();
+                if ($CoverImageCurrent) {
+                    DB::table('imageshotel')->where('id', $idImage)->update(['FileName' => $fileName]);
+                } else {
+                    $currentDateTime = date("YmdHis");
+                    $randomIdImage = "image" . $currentDateTime . rand(0, 9999);
+                    $res = DB::table('imageshotel')->insert([
+                        'id' => $randomIdImage,
+                        'HotelId' => $hotelId,
+                        'FileName' => $fileName,
+                        'TypeRoom' => 'None;Ảnh bìa',
+                        'created_at' => date("YmdHis")
+                    ]);
+                }
 
-                DB::table('imageshotel')->where('id', $idImage)->update(['FileName' => $fullUrl]);
+
 
                 return response()->json(true, 200);
             } else {
