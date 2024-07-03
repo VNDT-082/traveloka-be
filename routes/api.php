@@ -161,7 +161,7 @@ Route::get('/get-statistics-by-month', [SupperAdminController::class, 'getStatis
 Route::get('/get-province-counts', [SupperAdminController::class, 'getProvinceCounts']);
 Route::get('/get-top-province-booking', [SupperAdminController::class, 'getTopProvinceBooking']);
 Route::get('/get-all-hotel', [SupperAdminController::class, 'getAllHotel']);
-
+Route::get('/get-user-data', [SupperAdminController::class, 'getUserDataForCurrentMonth']);
 
 
 // Administrator Hotel Login

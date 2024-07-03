@@ -341,4 +341,44 @@ class SupperAdminController extends Controller
             return response()->json(['error' => 'Failed to fetch data', 'message' => $e->getMessage()], 500);
         }
     }
+
+    public function getUserDataForCurrentMonth()
+    {
+        $currentMonth = date('m');
+        $currentYear = date('Y');
+    
+        $users = DB::table('users')
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->select('name as user_name', 'Telephone as user_phone', 'email as user_email', 'Type as user_type','created_at')
+            ->get()
+            ->toArray();
+    
+        $staff = [];
+        $guest = [];
+    
+        foreach ($users as $user) {
+            if ($user->user_type == 'Staff') {
+                $staff[] = $user;
+            } elseif ($user->user_type == 'Guest') {
+                $guest[] = $user;
+            }
+        }
+    
+        $allUsers = DB::table('users')
+            ->select('name as user_name', 'Telephone as user_phone', 'email as user_email', 'Type as user_type','created_at')
+            ->get()
+            ->toArray();
+    
+        $response = [
+            'current_month' => [
+                'staff' => $staff,
+                'guest' => $guest
+            ],
+            'all_users' => $allUsers
+        ];
+    
+        return response()->json($response, 200);
+    }
+    
 }
