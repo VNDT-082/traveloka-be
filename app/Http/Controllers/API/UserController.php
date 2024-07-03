@@ -65,11 +65,11 @@ class UserController extends Controller
         DB::beginTransaction();
 
         try {
-            DB::table('users')
-                ->where('id', $idUser)
-                ->update([
-                    'email' => $userEmail,
-                ]);
+            // DB::table('users')
+            //     ->where('id', $idUser)
+            //     ->update([
+            //         'email' => $userEmail,
+            //     ]);
 
             DB::table('staff')
                 ->where('UserAccountId', $idUser)
@@ -93,6 +93,40 @@ class UserController extends Controller
         }
     }
 
+    public function updateUserGuestInfo(Request $request)
+    {
+        // Lấy dữ liệu từ request
+        $idUser = $request->input('account_id');
+        $userEmail = $request->input('user_email');
+        $userPhone = $request->input('user_phone');
+        $userName = $request->input('user_name');
+        $userGender = $request->input('user_gender');
+        $userDob = Carbon::parse($request->input('user_dob'))->format('Y-m-d');
+
+        DB::beginTransaction();
+
+        try {
+            DB::table('guest')
+                ->where('UserAccountId', $idUser)
+                ->update([
+                    'Email' => $userEmail,
+                    'Telephone' => $userPhone,
+                    'Name' => $userName,
+                    'Sex' => (int)$userGender,
+                    'DateOfBirth' => $userDob,
+                    'updated_at' => now(),
+                ]);
+
+
+            DB::commit();
+
+            return response()->json('Cập nhật thông tin thành công', 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json($e->getMessage(), 500);
+        }
+    }
 
     public function changePassword(Request $request)
     {
