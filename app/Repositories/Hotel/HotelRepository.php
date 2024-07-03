@@ -68,7 +68,8 @@ class HotelRepository extends BaseRepository implements IHotelRepository
     }
     public function getTop5ByProvinceId($id)
     {
-        return $this->model::with(['typeRooms', 'typeRooms.room'])->where('Province_Id', '=', $id)->take(5)->get();
+        return $this->model::with(['typeRooms', 'typeRooms.room'])->where('Province_Id', '=', $id)
+            ->where('IsActive', '=', 1)->take(5)->get();
     }
 
     public function search(
@@ -103,9 +104,9 @@ class HotelRepository extends BaseRepository implements IHotelRepository
         LEFT JOIN room ON typeroom.id=room.TypeRoomId
         WHERE 1=1
         AND (province.DisplayName LIKE N'%" . $province . "%' OR province.DisplayName IS NULL OR province.DisplayName='')
-        AND typeroom.MaxQuantityMember>=" . $totalmember . "
+        -- AND typeroom.MaxQuantityMember>=" . $totalmember . "
         AND room.TimeRecive>  DATE('" . $timereceive . "')
-        AND DATEDIFF(room.TimeLeave,room.TimeRecive)>" . $totalnight . "
+        AND DATEDIFF(room.TimeLeave,room.TimeRecive)>" . $totalnight . " AND IsActive = 1
         GROUP BY hotel.id,hotel.Name,hotel.Address,hotel.Telephone,hotel.Description,hotel.LocationDetail
 ,hotel.IsActive,hotel.TimeCheckIn,hotel.TimeCheckOut,hotel.created_at,hotel.updated_at,hotel.Type,hotel.StarRate,hotel.Province_Id";
         $hotels = DB::select($query);
@@ -113,6 +114,6 @@ class HotelRepository extends BaseRepository implements IHotelRepository
     }
     public function getTop10New()
     {
-        return $this->model::with(['typeRooms', 'typeRooms.room'])->latest()->limit(10)->get();
+        return $this->model::with(['typeRooms', 'typeRooms.room'])->where('IsActive', '=', 1)->latest()->limit(10)->get();
     }
 }

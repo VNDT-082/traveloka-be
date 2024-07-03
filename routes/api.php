@@ -145,7 +145,7 @@ Route::get('/get-user-info', [AuthController::class, 'getUserInfo']);
 Route::get('/get-full-info-user-staff', [UserController::class, 'getFullInfoUser']);
 Route::post('/update-full-info-user-staff', [UserController::class, 'updateUserInfo']);
 Route::post('/changePassword', [UserController::class, 'changePassword']);
-
+Route::post('/update-full-info-user-guest', [UserController::class, 'updateUserGuestInfo']);
 
 // Comments managment
 Route::get('/get-comments-hotel', [CommentController::class, 'getCommentByIdHotel']);

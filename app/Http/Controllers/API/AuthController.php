@@ -264,7 +264,6 @@ class AuthController extends Controller
             $dateTime = DateTime::createFromFormat('d/m/Y', $DateOfBirth);
             $convertedDate = $dateTime->format('Y-m-d');
 
-
             $guest = DB::table('guest')->where('UserAccountId', $UserAccountId)->first();
 
 
